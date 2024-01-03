@@ -51,22 +51,19 @@ Copy your mugen.exe file into the main directory.
 
 ## HOW TO INSTALL
 
-1. Download the latest MUGEN from www.elecbyte.com
-
-2. Install it to your harddrive
-
-3. extract jdarii.zip into the mugen folder (MUGEN\)     *NEW!*
-
-4. Run J'Dar'II by double clicking on the JDarII.exe
+- Download the latest MUGEN from www.elecbyte.com
+- Install it to your harddrive
+- extract jdarii.zip into the mugen folder (MUGEN\)     *NEW!*
+- Run J'Dar'II by double clicking on the JDarII.exe
    
 
 ## BUTTON CONFIGURATION
 
-X         =  Shoot (hold X = charge beam)
-left  + Y =  Sommersault to the left
-right + Y =  Sommersault to the right
-A         =  Smartbomb
-B         =  Satelite-Dash (only if your ship ownz a satelite)
+X         =  Shoot (hold X = charge beam)   
+left  + Y =  Sommersault to the left   
+right + Y =  Sommersault to the right   
+A         =  Smartbomb   
+B         =  Satelite-Dash (only if your ship ownz a satelite)   
 
 
 ## I DONT HAVE A CLUE ABOUT MUGEN AND I JUST WANT TO CHECK THE SHOOTER
