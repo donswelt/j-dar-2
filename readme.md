@@ -7,30 +7,30 @@ powered by M.U.G.E.N, www.elecbyte.com
 The folders 'Shooter1', 'Shooter2', 'Stages' and 'Data/JDarII/'
 are containing the following files:
 
-shooter1.air
-shooter1.cmd
-shooter1.cns
-shooter1.def
-shooter1.snd
-shooter1.sff
-shooter1.act
+- shooter1.air
+- shooter1.cmd
+- shooter1.cns
+- shooter1.def
+- shooter1.snd
+- shooter1.sff
+- shooter1.act
 
-shooter2.air
-shooter2.cmd
-shooter2.cns
-shooter2.def
-shooter2.snd
-shooter2.sff
-shooter2.act
+- shooter2.air
+- shooter2.cmd
+- shooter2.cns
+- shooter2.def
+- shooter2.snd
+- shooter2.sff
+- shooter2.act
 
-shooterbg.def
-shooterbg.sff
+- shooterbg.def
+- shooterbg.sff
 
-fight.def
-logo.sff
-logo.def
-shooterbmg.mp3
-logo.mp3
+- fight.def
+- logo.sff
+- logo.def
+- shooterbmg.mp3
+- logo.mp3
 
 Copy your mugen.exe file into the main directory.
 
