@@ -1,0 +1,21 @@
+[Info]
+name = "JDARII"
+displayname = "JDarII"
+versiondate = 09,07,2001
+mugenversion = 04,01,2001
+author = "KGenjuro"
+pal.defaults = 1
+
+;V1.0
+
+[Files]
+cmd     = shooter2.cmd
+cns     = shooter2.cns
+st      = shooter2.cns
+stcommon = common1.cns
+sprite  = shooter2.sff
+anim    = shooter2.air
+sound   = shooter2.snd
+pal1    = shooter2.act
+
+[Arcade]

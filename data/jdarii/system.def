@@ -1,0 +1,316 @@
+; Definitions of system screens
+
+; *** DO NOT MODIFY OR OVERWRITE THIS FILE ***
+; To customize, make a copy of this file in a subdirectory of your
+; motif's name. See readme.txt for details on motifs.
+
+; *2001.04.01 NEW* symbolizes any new parameters added for the 2001.04.01
+; version of M.U.G.E.N.
+; *2001.04.14 NEW* symbolizes any new parameters added for the 2001.04.14
+; version of M.U.G.E.N.
+
+; Notes about fonts:
+;   - do not index fonts greater than 9 (crash)
+;   - fonts indexed here do not refer to the ones in fight.def
+
+;----------------------------
+;Whole group is *2001.04.01 NEW*
+[Info]
+name = "JDarII"          ;Name of motif
+author = "Daddelkingz"       ;Motif author name
+
+;----------------------------
+;Directories are checked in this order:
+;1. current directory system.def is in
+;2. data/
+;3. your MUGEN directory
+;eg. If you write "spr = system.sff", and this system.def file
+;    is in ~/mugen/data/mymotif/, then Mugen will first look
+;    for ~/mugen/data/mymotif/system.sff. If it does not find
+;    it there, it looks for ~/mugen/data/system.sff (the default).
+;    Finally, if that is not found, it will look for
+;    ~/mugen/system.sff. 
+
+[Files]
+spr = system.sff          ;Filename of sprite data
+snd = system.snd          ;Filename of sound data
+logo.storyboard = logo.def;Logo storyboard definition (optional) *2001.04.01 NEW*
+intro.storyboard =        ;Intro storyboard definition (optional) *2001.04.01 NEW*
+select = select.def       ;Character and stage selection list
+fight = fight.def         ;Fight definition filename
+font1 = font/f-4x6.fnt    ;System fonts
+font2 = font/f-6x9.fnt    ;System fonts
+font3 = font/jg.fnt       ;System fonts
+
+;----------------------------
+[Music]
+ ;Put a filename for a MOD, MP3 or MIDI here, or just leave it
+ ;blank if you do not want music. If an invalid filename is
+ ;given, then no music will play. To play CD audio, put
+ ;the track number followed by ".da". For example, to play
+ ;track 3 from a music CD at the title screen, use:
+ ;  title.bgm = 3.da
+ ;To play mymusic.mp3 from the sound/ directory, put:
+ ;  title.bgm = sound/mymusic.mp3
+  ;Music to play at title screen.
+title.bgm = 
+title.bgm.loop = 1        ;Set to 0 to prevent looping *2001.04.01 NEW*
+  ;Music to play at char select screen.
+select.bgm = 
+select.bgm.loop = 0       ;*2001.04.01 NEW*
+  ;Music to play at versus screen.
+vs.bgm = 
+vs.bgm.loop = 1           ;*2001.04.01 NEW*
+
+;-------------------------------------------------------------------
+;Title screen definition
+;All but last 3 parameters are *2001.04.14 NEW*
+[Title Info]
+menu.pos = 159,108
+menu.item.font = 3,0,0
+menu.item.active.font = 3,5,0
+menu.item.spacing = 0, 13
+; Names for each of the items in the menu. Names must be in quotes.
+menu.itemname.arcade = "ARCADE"
+menu.itemname.versus = "..."
+menu.itemname.teamarcade = "..."
+menu.itemname.teamversus = "..."
+menu.itemname.teamcoop = "..."
+menu.itemname.training = "..."
+menu.itemname.watch = "..."
+menu.itemname.options = "OPTIONS"
+menu.itemname.exit = "EXIT"
+; These parameters define the window in which the items are visible
+; in.
+menu.window.margins.y = 12, 8
+menu.window.visibleitems = 5
+menu.boxcursor.visible = 1     ;Set to 0 to disable default cursor display
+menu.boxcursor.coords = -48,-10,47,2
+; These are the sounds for cursor movement
+cursor.move.snd = 100,0
+cursor.done.snd = 100,1
+cancel.snd = 100,2
+
+;----------------------------
+;Title background definition
+[TitleBGdef]
+bgclearcolor = 0,0,0
+
+[TitleBG 3]
+type  = normal
+spriteno = 0,0
+start = -160, 0
+
+;-------------------------------------------------------------------
+;Character select definition
+[Select Info]
+rows = 2
+columns = 2
+wrapping = 0              ;1 to let cursor wrap around
+pos = 90,270              ;Position to draw to
+showemptyboxes = 0        ;1 to show empty boxes
+moveoveremptyboxes = 0    ;1 to allow cursor to move over empty boxes
+cell.size = 27,27         ;x,y size of each cell (in pixels)
+cell.spacing = 2          ;Space between each cell
+;cell.bg.spr = -1       ;Note: Don't use animation for cells
+;cell.random.spr = -1   ;Icon for random select (don't use animation)
+cell.random.switchtime = 4;Time to wait before changing to another random portrait
+p1.cursor.startcell = 0,0
+;p1.cursor.active.spr = -1
+;p1.cursor.done.spr = -1
+p1.cursor.move.snd = 100,0
+p1.cursor.done.snd = 100,1
+p1.random.move.snd = 100,0;*2001.04.01 NEW*
+p2.cursor.startcell = 0,0
+;p2.cursor.active.spr = -1
+;p2.cursor.done.spr = -1
+p2.cursor.blink = 1       ;1 to blink p2's cursor if overlapping p1's
+p2.cursor.move.snd = 100,0
+p2.cursor.done.snd = 100,1
+p2.random.move.snd = 100,0;*2001.04.01 NEW*
+random.move.snd.cancel = 0;*2001.04.01 NEW* 1 to have random move sound cancel itself when played repeatedly
+stage.move.snd = 100,0    ;*2001.04.01 NEW*
+stage.done.snd = 100,1    ;*2001.04.01 NEW*
+cancel.snd = 100,2
+portrait.offset = 0,0
+portrait.scale = 1,1
+title.offset = -300,-300    ;Position of title (Arcade Mode, etc)
+title.font = 3,0,0        ;Font of title (-1 for none)
+;Big portraits
+p1.face.offset = -300,-300    ;Position to put big portrait
+p1.face.scale = 1,1
+p1.face.facing = 1        ;*2001.04.01 NEW*
+p2.face.offset = -300,-300
+p2.face.scale = 1,1
+p2.face.facing = -1       ;*2001.04.01 NEW*
+;Name
+p1.name.offset = -300,-300   ;Position to put name
+p1.name.font = 3,4,1      ;Set to -1 for no display
+p2.name.offset = -300,-300
+p2.name.font = 3,1,-1
+;Stage select
+stage.pos = -300,-300
+stage.active.font = 3,0,0
+stage.active2.font = 3,2  ;Second font color for blinking
+stage.done.font = 3,0
+;Team menu                *2001.04.01 NEW* for below
+teammenu.move.wrapping = 1
+p1.teammenu.pos = -300,-300
+;p1.teammenu.bg.spr =
+p1.teammenu.selftitle.font = 3,0, 1
+p1.teammenu.selftitle.text = Select team mode
+p1.teammenu.enemytitle.font = 3,0, 1
+p1.teammenu.enemytitle.text = Opponent team mode
+p1.teammenu.move.snd = 100,0
+p1.teammenu.value.snd = 100,0
+p1.teammenu.done.snd = 100,1
+p1.teammenu.item.offset = 0,20
+p1.teammenu.item.spacing = 0,15
+p1.teammenu.item.font = 3,0, 1
+p1.teammenu.item.active.font = 3,3, 1
+p1.teammenu.item.active2.font = 3,0, 1 ;Second font color for blinking
+p1.teammenu.item.cursor.offset = -10, 0
+p1.teammenu.item.cursor.anim = 180
+p1.teammenu.value.icon.offset = 60,1
+;p1.teammenu.value.icon.spr = 181,0
+p1.teammenu.value.empty.icon.offset = 60,1
+;p1.teammenu.value.empty.icon.spr = 182,0
+p1.teammenu.value.spacing = 6,0
+;p2 team
+p2.teammenu.pos = 299, 30
+;p2.teammenu.bg.spr =
+p2.teammenu.selftitle.font = 3,0, -1
+p2.teammenu.selftitle.text = Select team mode
+p2.teammenu.enemytitle.font = 3,0, -1
+p2.teammenu.enemytitle.text = Opponent team mode
+p2.teammenu.move.snd = 100,0
+p2.teammenu.value.snd = 100,0
+p2.teammenu.done.snd = 100,1
+p2.teammenu.item.offset = 0,20
+p2.teammenu.item.spacing = 0,15
+p2.teammenu.item.font = 3,0, -1
+p2.teammenu.item.active.font = 3,1, -1
+p2.teammenu.item.active2.font = 3,0, -1 ;Second font color for blinking
+p2.teammenu.item.cursor.offset = 10, 0
+p2.teammenu.item.cursor.anim = 190
+p2.teammenu.value.icon.offset = -60,1
+;p2.teammenu.value.icon.spr = 191,0
+p2.teammenu.value.empty.icon.offset = -60,1
+;p2.teammenu.value.empty.icon.spr = 192,0
+p2.teammenu.value.spacing = -6,0
+;Sounds
+
+;-----------------------
+;Character select screen background
+[SelectBGdef]
+;spr = graphics/selectbg.sff  ;Filename of sprite data
+
+[SelectBG 0] ;Scrolling background
+type  = normal
+spriteno = 0,1
+layerno = 0
+start = -160,0
+velocity = 0, 0
+
+;-------------------------------------------------------------------
+[VS Screen]
+time = 0               ;Time to show screen
+;Big portraits
+p1.pos =  -300,-300
+p1.facing = 1             ;*2001.04.01 NEW*
+p1.scale = 1,1            ;*2001.04.01 NEW*
+p2.pos = -300,-300
+p2.facing = -1            ;*2001.04.01 NEW*
+p2.scale = 1,1            ;*2001.04.01 NEW*
+;Names
+p1.name.pos  =  -300,-300
+p1.name.font =   3,0,0
+p2.name.pos  = -300,-300
+p2.name.font =   3,0,0
+
+;-----------------------
+;VS Match up screen background
+[VersusBGdef] 
+
+[VersusBG 1] 
+type  = normal
+spriteno = 0,1
+start = -160,0
+velocity = 0,0
+
+;-------------------------------------------------------------------
+;Demo mode definition
+;Whole group is *2001.04.01 NEW*
+[Demo Mode]
+enabled = 0               ;Set to 1 to enable demo mode, 0 to disable
+select.enabled = 0        ;Set to 1 to display select screen, 0 to disable
+vsscreen.enabled = 0      ;Set to 1 to display versus screen, 0 to disable
+title.waittime = 600      ;Time to wait at title before starting demo mode
+fight.endtime = 1500      ;Time to display the fight before returning to title
+fight.playbgm = 0         ;Set to 1 to enable in-fight BGM, 0 to disable
+fight.bars.display = 0    ;Set to 1 to display lifebar, 0 to disable
+intro.waitcycles = 1      ;Cycles to wait before intro cutscene is played again
+debuginfo = 0             ;Set to 0 to hide debugging info (debug mode only)
+
+;-------------------------------------------------------------------
+;Continue screen definition
+;Whole group is *2001.04.01 NEW*
+[Continue Screen]
+enabled = 1               ;Set to 1 to show continue screen, 0 to disable
+
+;-------------------------------------------------------------------
+;Game over screen definition
+;Whole group is *2001.04.01 NEW*
+[Game Over Screen]
+enabled = 0               ;Set to 1 to show game over screen, 0 to disable
+storyboard =              ;Game over storyboard filename
+
+;-------------------------------------------------------------------
+;Win screen definition
+;This is the screen that is shown when you win in arcade mode.
+;It will not be displayed if the winning character has an ending.
+[Win Screen]
+enabled = 1               ;Set to 1 to show win screen, 0 to disable *2001.04.01 NEW*
+wintext.text = Congratulations!
+wintext.font = 2,0,0
+wintext.offset = 159,70
+wintext.displaytime = -1
+wintext.layerno = 2
+fadein.time = 32
+pose.time = 300
+fadeout.time = 64
+
+;-------------------------------------------------------------------
+;Game ending screen definition
+;This screen shows up after the Win Screen.
+;It will not be displayed if the winning character has an ending.
+;Whole group is *2001.04.01 NEW*
+[Default Ending]
+enabled = 0               ;Set to 1 to show credits, 0 to disable
+storyboard =              ;Default ending storyboard filename
+
+;-------------------------------------------------------------------
+;Ending credits screen definition
+;This screen shows up after the Win Screen and Ending
+;Whole group is *2001.04.01 NEW*
+[End Credits]
+enabled = 0               ;Set to 1 to show credits, 0 to disable
+storyboard =              ;Credits storyboard filename
+
+;-------------------------------------------------------------------
+;Options screen definition
+[Option Info]
+cursor.move.snd = 100,0
+cursor.done.snd = 100,1
+cancel.snd = 100,2
+
+;-------------------
+;Options screen background
+[OptionBGdef] 
+
+[OptionBG 1]
+type  = normal
+spriteno = 0,0
+start = -160,0
+velocity = 0,0
+

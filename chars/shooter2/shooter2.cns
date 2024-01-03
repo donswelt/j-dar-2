@@ -1,0 +1,6157 @@
+;var(26)  = Boss Damage
+;var(7)   = Enemy Select Random Var
+;var(8)   = Random Var
+;var(9)   = Boss Timer for Pause
+;var(10)  = Enemy Shot Ratio
+;var(13)  = Asteroid X Movement
+;var(14)  = Asteroid Y Movement/Asteroid Twist Speed
+;var(15)  = Medium Asteroid Twist Speed
+;var(25)  = Boss X Movement
+;var(16)  = Boss Specialmove Timeline
+;var(29)  = Boss Number
+;fvar(28) = Boss Y Movement
+;var(12)  = Wave Time Line
+;var(11)  = Enemy Apear Value
+;var(19)  = Boss Apear Value
+;var(31)  = Max Wave Length
+;var(35)  = Var for Boss#4 to know if Boss#5 and his head are still alive
+
+[Data]
+life = 1000
+attack = 100
+defence = 100
+fall.defence_up = 50
+liedown.time = 60
+airjuggle = 15
+sparkno = 2
+guard.sparkno = 40
+KO.echo = 0
+volume = 0
+IntPersistIndex = 40
+FloatPersistIndex = 40
+
+[Size]
+xscale = 1           ;Horizontal scaling factor.
+yscale = 1           ;Vertical scaling factor.
+ground.back = 26     ;Player width (back, ground)
+ground.front = 17    ;Player width (front, ground)
+air.back = 20        ;Player width (back, air)
+air.front = 20       ;Player width (front, air)
+height = 60	     ;Height of player (for opponent to jump over)
+attack.dist = 160    ;Default attack distance
+proj.attack.dist = 90 ;Default attack distance for projectiles
+proj.doscale = 0     ;Set to 1 to scale projectiles too   
+head.pos = -5, -90   ;Approximate position of head
+mid.pos = -5, -60    ;Approximate position of midsection
+shadowoffset = 0     ;Number of pixels to vertically offset the shadow
+draw.offset = 0,0    ;Player drawing offset in pixels (x, y)
+
+[Velocity]
+walk.fwd  = 2 ;1.6      ;Walk forward
+walk.back = -1.9 ;-1.5     ;Walk backward
+run.fwd  = 6.5, 0    ;Run forward (x, y)  - if y<0, player will hop
+run.back = -5.5, -3.8   ;Run backward (x, y) - if y=0, player will run
+jump.neu = 0,-11.3    ;Neutral jumping velocity (x, y)
+jump.back = -2.2    ;Jump back Speed (x, y)
+jump.fwd = 2.4       ;Jump forward Speed (x, y)
+runjump.back = -1,-8.1 ;Running jump speeds (opt)
+runjump.fwd = 3,-8.1      ;.
+airjump.neu = 0,-8.1      ;.
+airjump.back = -2.55,-8.1 ;Air jump speeds (opt)
+airjump.fwd = 2.5,-8.1    ;.
+
+[Movement]
+airjump.num = 0      ;Number of air jumps allowed (opt)
+airjump.height = 35  ;Minimum distance from ground before you can air jump (opt)
+yaccel = .49         ;Vertical acceleration
+stand.friction = .85  ;Friction coefficient when standing
+crouch.friction = .82 ;Friction coefficient when crouching
+
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+;-- 
+;--
+;--                          COMMON STUFF 0001
+;--
+;--
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------
+; EXPLO
+[Statedef 199]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0,0
+
+[State 199, 1]
+type = nothitby
+trigger1 = 1
+value = SCA
+time = 1
+
+[State 199, 0]
+type = Explod
+trigger1 = Time = 0 && anim != 199
+anim = 199
+pos = 0,0
+postype = p1
+sprpriority = 20
+ownpal = 1
+scale = .4,.4
+
+[State 199, 1]
+type = changeAnim
+trigger1 = Time = 0 && random < 500
+trigger2 = Time = 40 && anim != 199
+value = 199
+
+[State 199, 3]
+type = AngleDraw
+trigger1 = anim != 199
+
+[State 199, 4]
+type = AngleAdd
+trigger1 = anim != 199
+value = 16
+
+[State 199, 5]
+type = varRandom
+trigger1 = time = 0
+v = 8
+range = 1,4
+
+[State 199, 6]
+type = VelSet
+trigger1 = anim != 199 && var(8) = 1
+x = 2
+y = -1
+
+[State 199, 7]
+type = VelSet
+trigger1 = anim != 199 && var(8) = 2
+x = 2
+y = 1
+
+[State 199, 8]
+type = VelSet
+trigger1 = anim != 199 && var(8) = 3
+x = -1
+y = -3
+
+[State 199, 9]
+type = VelSet
+trigger1 = anim != 199 && var(8) = 4
+x = -1
+y = 3
+
+[State 199, 10]
+type = makedust
+trigger1 = anim != 199
+pos = 0,0
+spacing = 3
+
+[State 199, 0]
+type = PlaySnd
+trigger1 = Time = 1
+value = 6,2 + ((random<500)*1) + ((random<500)*1)
+
+[State 199, 0]
+type = PlaySnd
+trigger1 = Time = 41 && anim = 199
+value = 6,3
+
+[State 199, 11]
+type = DestroySelf
+trigger1 = AnimTime = 0
+
+;---------------------------------------------------------------------------
+; ENEMY1(LEFT_TO_CENTER)
+[Statedef 200]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = -10 - ((random<500)*5) - ((random<500)*5) - ((random<500)*5), 0
+anim = 300
+
+[State 200, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 200, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 200, 3]
+type = VelAdd
+trigger1 = time < 40
+trigger2 = time >= 40 && var(8) != 2
+x = -.1
+y = .1
+
+[State 200, 3]
+type = VarRandom
+trigger1 = time = 0
+v = 8
+range = 1,2
+
+[State 200, 4]
+type = VelAdd
+trigger1 = time >= 30 && var(8) = 2 && vel X > -3
+x = -1.177
+
+[State 200, 4]
+type = VelAdd
+trigger1 = time >= 30 && var(8) = 2 && vel Y > .1
+y = -.1
+
+[State 200, 3]
+type = AngleSet
+trigger1 = time = 0
+value = 180
+
+[State 200, 6]
+type = AngleDraw
+trigger1 = time > 20 && var(8) = 2
+
+[State 200, 7]
+type = AngleAdd
+trigger1 = time > 20 && var(8) = 2
+value = -1.2
+
+[State 200, 4]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = var(8) = 2 && time < 40 && random < parent, var(10)
+trigger2 = var(8) = 1 && random < parent, var(10)
+projid = 200
+projanim = 210
+projcancelanim = 199
+projremanim = -1
+offset = 0, -10
+velocity = 0 - ((random<500)*.1) + ((random<500)*.1) - ((random<500)*.1) + ((random<500)*.1), -1
+remvelocity = 0, 0
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 200, 5]
+type = DestroySelf
+trigger1 = pos Y > 60 || Time = 130
+
+;---------------------------------------------------------------------------
+; ENEMY2(RIGHT_TO_CENTER)
+[Statedef 210]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 10 + ((random<500)*5) + ((random<500)*5) + ((random<500)*5), 0
+anim = 300
+
+[State 210, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 210, 3]
+type = VelAdd
+trigger1 = time < 30
+trigger2 = time >= 30 && var(8) != 2
+x = .1
+y = .1
+
+[State 210, 3]
+type = VarRandom
+trigger1 = time = 0
+v = 8
+range = 1,2
+
+[State 210, 3]
+type = VelAdd
+trigger1 = time >= 30 && var(8) = 2 && vel X < 3
+x = 1.177
+
+[State 210, 3]
+type = VelAdd
+trigger1 = time >= 30 && var(8) = 2 && vel Y > .1
+y = -.1
+
+[State 210, 3]
+type = AngleSet
+trigger1 = time = 0
+value = 180
+
+[State 210, 3]
+type = AngleDraw
+trigger1 = time > 20 && var(8) = 2
+
+[State 210, 3]
+type = AngleAdd
+trigger1 = time > 20 && var(8) = 2
+value = 1.2
+
+[State 210, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 210, 4]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = var(8) = 2 && time < 40 && random < parent, var(10)
+trigger2 = var(8) = 1 && random < parent, var(10)
+projid = 200
+projanim = 210
+projremanim = -1
+projcancelanim = 199
+offset = 0, -10
+velocity = 0 - ((random<500)*.1) + ((random<500)*.1) - ((random<500)*.1) + ((random<500)*.1), -1
+remvelocity = 0, 0
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 210, 5]
+type = DestroySelf
+trigger1 = Time = 130
+
+;---------------------------------------------------------------------------
+; ENEMY3(CENTER_TO_LEFT)
+[Statedef 220]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 310
+
+[State 220, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 220, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 220, 2]
+type = PosSet
+trigger1 = time = 0
+x = 0 + ((random<500)*50) + ((random<500)*50) + ((random<500)*50)
+
+[State 220, 3]
+type = VelSet
+trigger1 = time = 0
+y = 2 + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2)
+
+[State 220, 4]
+type = VelAdd
+trigger1 = time > 30
+x = 1.15
+y = -.05
+
+[State 220, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 30
+value = 6,5
+
+[State 220, 5]
+type = AngleSet
+trigger1 = time = 30
+value = 180
+
+[State 220, 6]
+type = AngleDraw
+trigger1 = time > 30
+
+[State 220, 7]
+type = AngleAdd
+trigger1 = time > 30
+value = 1.3
+
+[State 220, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time > 10 && random < parent, var(10)
+projid = 200
+projanim = 200
+projremanim = -1
+offset = 0, -10
+velocity = .5 - ((random<500)*.2) + ((random<500)*.2) - ((random<500)*.2) + ((random<500)*.2) - ((random<500)*.2) + ((random<500)*.2) - ((random<500)*.2), 2
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 220, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+; ENEMY4(CENTER_TO_RIGHT)
+[Statedef 230]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 310
+
+[State 230, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 230, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 230, 2]
+type = PosSet
+trigger1 = time = 0
+x = 0 - ((random<500)*50) - ((random<500)*50) - ((random<500)*50)
+
+[State 230, 3]
+type = VelSet
+trigger1 = time = 0
+y = 2 + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2)
+
+[State 230, 4]
+type = VelAdd
+trigger1 = time > 30
+x = -1.15
+y = -.05
+
+[State 230, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 30
+value = 6,5
+
+[State 230, 5]
+type = AngleSet
+trigger1 = time = 30
+value = 180
+
+[State 230, 6]
+type = AngleDraw
+trigger1 = time > 30
+
+[State 230, 7]
+type = AngleAdd
+trigger1 = time > 30
+value = -1.3
+
+[State 230, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time > 10 && random < parent, var(10)
+projid = 200
+projanim = 200
+projremanim = -1
+offset = 0, -10
+velocity = .5 - ((random<500)*.2) + ((random<500)*.2) - ((random<500)*.2) + ((random<500)*.2) - ((random<500)*.2) + ((random<500)*.2) - ((random<500)*.2), 2
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 230, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+; ENEMY5(LEFT_TO_TOP)
+[Statedef 240]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 320
+
+[State 240, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 240, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 240, 2]
+type = PosSet
+trigger1 = time = 0
+y = -80 - ((random<500)*40) - ((random<500)*40) - ((random<500)*40)
+
+[State 240, 3]
+type = VelSet
+trigger1 = time < 30
+x = -2 - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2)
+y = 1
+
+[State 240, 4]
+type = VelAdd
+trigger1 = time > 30
+x = -.5
+y = - .1
+
+[State 240, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 25
+value = 6,5
+
+[State 240, 6]
+type = AngleDraw
+trigger1 = time > 30
+
+[State 240, 7]
+type = AngleAdd
+trigger1 = time > 30
+value = 1.2
+
+[State 240, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time > 10 && random < parent, var(10)
+projid = 200
+projanim = 200
+projremanim = -1
+offset = 0, -10
+velocity = -.5 - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2) - ((random<500)*.2), 1
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 240, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+; ENEMY5(RIGHT_TO_TOP)
+[Statedef 250]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 321
+
+[State 250, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 250, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 250, 2]
+type = PosSet
+trigger1 = time = 0
+y = -80 - ((random<500)*40) - ((random<500)*40) - ((random<500)*40)
+
+[State 250, 3]
+type = VelSet
+trigger1 = time < 30
+x = 2 + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2)
+y = 1
+
+[State 250, 4]
+type = VelAdd
+trigger1 = time > 30
+x = .5
+y = - .1
+
+[State 250, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 25
+value = 6,5
+
+[State 250, 6]
+type = AngleDraw
+trigger1 = time > 30
+
+[State 250, 7]
+type = AngleAdd
+trigger1 = time > 30
+value = 1.2
+
+[State 250, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time > 10 && random < parent, var(10)
+projid = 200
+projanim = 200
+projremanim = -1
+offset = 0, -10
+velocity = .5 + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2), 1
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 250, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+; ASTEROID
+[Statedef 260]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 330
+
+[State 260, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 261
+time = -1
+
+[State 260, 2]
+type = HitDef
+trigger1 = 1
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 260, 2]
+type = PosSet
+trigger1 = time = 0
+y = -220 + ((random<500)*50) + ((random<500)*50) + ((random<500)*50) + ((random<500)*50)
+
+[State 260, 5]
+type = varRandom
+trigger1 = time = 0
+v = 13
+range = 1,8
+
+[State 260, 2]
+type = PosSet
+trigger1 = time = 0 && var(13) > 4
+x = -200
+
+[State 260, 6]
+type = VelSet
+trigger1 = var(13) = 1
+x = 2
+y = -1
+
+[State 260, 7]
+type = VelSet
+trigger1 = var(13) = 2
+x = 2
+y = 1
+
+[State 260, 8]
+type = VelSet
+trigger1 = var(13) = 3
+x = 3
+y = -2
+
+[State 260, 9]
+type = VelSet
+trigger1 = var(13) = 4
+x = 3
+y = 2
+
+[State 260, 6]
+type = VelSet
+trigger1 = var(13) = 5
+x = -2
+y = -1
+
+[State 260, 7]
+type = VelSet
+trigger1 = var(13) = 6
+x = -2
+y = 1
+
+[State 260, 8]
+type = VelSet
+trigger1 = var(13) = 7
+x = -3
+y = -2
+
+[State 260, 9]
+type = VelSet
+trigger1 = var(13) = 8
+x = -3
+y = 2
+
+[State 260, 5]
+type = varRandom
+trigger1 = time = 0
+v = 14
+range = 3,8
+
+[State 260, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 260, 7]
+type = AngleAdd
+trigger1 = 1
+value = var(14)
+
+[State 260, 9]
+type = DestroySelf
+trigger1 = Time = 220
+
+; ASTEROID(TO_MEDIUM)
+[Statedef 261]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 199
+
+[State 261, 5]
+type = PlaySnd
+trigger1 = time = 0
+value = 6,4
+
+[State 261, 1]
+type = helper
+trigger1 = Time = 0
+ID = 210
+pos = 0,0
+postype = p1
+stateno = 262
+helpertype = normal
+name = "Asteroid_Medium"
+ownpal = 1
+keyctrl = 0
+
+[State 261, 2]
+type = helper
+trigger1 = Time = 0
+ID = 210
+pos = 0,0
+postype = p1
+stateno = 263
+helpertype = normal
+name = "Asteroid_Medium"
+ownpal = 1
+keyctrl = 0
+
+[State 261, 9]
+type = DestroySelf
+trigger1 = AnimTime = 0
+
+;---------------------------------------------------------------------------
+; ASTEROID_MEDIUM(RIGHT)
+[Statedef 262]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 331
+
+[State 262, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 264
+time = -1
+
+[State 262, 2]
+type = HitDef
+trigger1 = 1
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 262, 5]
+type = varRandom
+trigger1 = time = 0
+v = 13
+range = 1,2
+
+[State 262, 5]
+type = varRandom
+trigger1 = time = 0
+v = 14
+range = -2,2
+
+[State 262, 6]
+type = VelSet
+trigger1 = 1
+x = var(13)
+y = var(14)
+
+[State 262, 5]
+type = varRandom
+trigger1 = time = 0
+v = 15
+range = 3,8
+
+[State 262, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 262, 7]
+type = AngleAdd
+trigger1 = 1
+value = var(15)
+
+[State 262, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+; ASTEROID_MEDIUM(LEFT)
+[Statedef 263]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 331
+
+[State 263, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 264
+time = -1
+
+[State 263, 2]
+type = HitDef
+trigger1 = 1
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 263, 5]
+type = varRandom
+trigger1 = time = 0
+v = 13
+range = -2,-1
+
+[State 263, 5]
+type = varRandom
+trigger1 = time = 0
+v = 14
+range = -2,2
+
+[State 263, 6]
+type = VelSet
+trigger1 = 1
+x = var(13)
+y = var(14)
+
+[State 263, 5]
+type = varRandom
+trigger1 = time = 0
+v = 15
+range = 3,8
+
+[State 263, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 263, 7]
+type = AngleAdd
+trigger1 = 1
+value = var(15)
+
+[State 263, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+; ASTEROID_MEDIUM(TO_SMALL)
+[Statedef 264]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 199
+
+[State 264, 5]
+type = PlaySnd
+trigger1 = time = 0
+value = 6,4
+
+[State 264, 1]
+type = helper
+trigger1 = Time = 0
+ID = 210
+pos = 0,0
+postype = p1
+stateno = 265
+helpertype = normal
+name = "Asteroid_Small"
+ownpal = 1
+keyctrl = 0
+
+[State 264, 2]
+type = helper
+trigger1 = Time = 0
+ID = 210
+pos = 0,0
+postype = p1
+stateno = 266
+helpertype = normal
+name = "Asteroid_Small"
+ownpal = 1
+keyctrl = 0
+
+[State 264, 9]
+type = DestroySelf
+trigger1 = AnimTime = 0
+
+;---------------------------------------------------------------------------
+; ASTEROID_SMALL(RIGHT)
+[Statedef 265]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 332
+
+[State 265, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 265, 2]
+type = HitDef
+trigger1 = 1
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 265, 5]
+type = varRandom
+trigger1 = time = 0
+v = 13
+range = 1,2
+
+[State 265, 5]
+type = varRandom
+trigger1 = time = 0
+v = 14
+range = -2,2
+
+[State 265, 6]
+type = VelSet
+trigger1 = 1
+x = var(13)
+y = var(14)
+
+[State 265, 5]
+type = varRandom
+trigger1 = time = 0
+v = 15
+range = 3,8
+
+[State 265, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 265, 7]
+type = AngleAdd
+trigger1 = 1
+value = var(15)
+
+[State 265, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+; ASTEROID_SMALL(LEFT)
+[Statedef 266]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 332
+
+[State 266, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 266, 2]
+type = HitDef
+trigger1 = 1
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 266, 5]
+type = varRandom
+trigger1 = time = 0
+v = 13
+range = -2,-1
+
+[State 266, 5]
+type = varRandom
+trigger1 = time = 0
+v = 14
+range = -2,2
+
+[State 266, 6]
+type = VelSet
+trigger1 = 1
+x = var(13)
+y = var(14)
+
+[State 266, 5]
+type = varRandom
+trigger1 = time = 0
+v = 15
+range = 3,8
+
+[State 266, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 266, 7]
+type = AngleAdd
+trigger1 = 1
+value = var(15)
+
+[State 266, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+; ENEMY6(BOMBER)
+[Statedef 270]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 351
+
+[State 270, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 270, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 270, 2]
+type = PosSet
+trigger1 = time = 0
+x = -170 + ((random<500)*350)
+y = -80 - ((random<500)*30) - ((random<500)*30) - ((random<500)*30)
+
+[State 270, 3]
+type = VarSet
+trigger1 = time = 0
+v = 8
+value = 1 - (pos X < 0)
+
+[State 270, 3]
+type = changeanim
+trigger1 = time = 1 && var(8) = 1
+value = 350
+
+[State 270, 3]
+type = VelSet
+trigger1 = var(8) = 0
+x = -2
+
+[State 270, 3]
+type = VelSet
+trigger1 = var(8) = 1
+x = 2
+
+[State 270, 3]
+type = Veladd
+trigger1 = time > 30
+y = -.05
+
+[State 270, 6]
+type = AngleDraw
+trigger1 = time > 30
+
+[State 270, 7]
+type = AngleAdd
+trigger1 = time > 30
+value = .3
+
+[State 270, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = timemod = 30,0 && parent,var(17) = 0
+trigger2 = timemod = 70,0 && parent,var(17) = 1
+projid = 200
+projanim = 210
+projcancelanim = 199
+projremanim = -1
+offset = 0, -10
+velocity = 0 - ((random<500)*.1) + ((random<500)*.1) - ((random<500)*.1) + ((random<500)*.1), -1
+remvelocity = 0, 0
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 270, 9]
+type = DestroySelf
+trigger1 = pos Y < -210 || Time = 200
+
+;---------------------------------------------------------------------------
+; ENEMY7(BOTTOM_TO_TOP)
+[Statedef 280]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 340
+
+[State 280, 0]
+type = Explod
+trigger1 = Time = 0
+anim = 342
+pos = 0,-40
+postype = p1
+ownpal = 1
+ontop = 1
+removetime = 60
+
+[State 280, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 280, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 280, 2]
+type = PosSet
+trigger1 = time = 0
+x = 0 + ((random<500)*60) - ((random<500)*60) + ((random<500)*60) - ((random<500)*60)
+y = 60
+
+[State 280, 3]
+type = VelSet
+trigger1 = time > 80 && time <= 110
+y = -3
+
+[State 280, 4]
+type = VelAdd
+trigger1 = time > 110 && pos X > 0
+x = -1
+y = - .1
+
+[State 280, 4]
+type = VelAdd
+trigger1 = time > 110 && pos X <= 0
+x = 1
+y = - .1
+
+[State 280, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 25
+value = 6,5
+
+[State 280, 6]
+type = AngleDraw
+trigger1 = time > 110
+
+[State 280, 7]
+type = AngleAdd
+trigger1 = time > 110 && pos X > 0
+value = .7
+
+[State 280, 7]
+type = AngleAdd
+trigger1 = time > 110 && pos X < 0
+value = -.7
+
+[State 280, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 80
+trigger2 = time = 90
+trigger3 = time = 100
+trigger4 = time = 110
+value = 6,1
+
+[State 280, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 80
+trigger2 = time = 90
+trigger3 = time = 100
+trigger4 = time = 110
+projid = 200
+projanim = 341
+projremanim = -1
+offset = 0, -10
+velocity = 0, -10
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 280, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+; ENEMY8(BREAKER)
+[Statedef 290]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 360
+
+[State 270, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 290, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 290, 2]
+type = PosSet
+trigger1 = time = 0
+x = -180 + ((random<500)*370)
+y = -50 - ((random<500)*20) - ((random<500)*20) - ((random<500)*20) - ((random<500)*20) - ((random<500)*20)
+
+[State 290, 3]
+type = VarSet
+trigger1 = time = 0
+v = 8
+value = 1 - (pos X < 0)
+
+[State 290, 3]
+type = VelSet
+trigger1 = var(8) = 0 && time = 10
+x = -20 - ((random<500)*5) - ((random<500)*5) - ((random<500)*5)
+
+[State 290, 3]
+type = VelSet
+trigger1 = var(8) = 1 && time = 10
+x = 20 + ((random<500)*5) + ((random<500)*5) + ((random<500)*5)
+
+[State 290, 3]
+type = VelSet
+trigger1 = var(8) = 0 && time > 100
+x = -20
+
+[State 290, 3]
+type = VelSet
+trigger1 = var(8) = 1 && time > 100
+x = 20
+
+[State 290, 3]
+type = VelAdd
+trigger1 = var(8) = 0 && vel X < 0
+x = 1
+
+[State 290, 3]
+type = VelAdd
+trigger1 = var(8) = 0 && vel X > 0
+x = -1
+
+[State 290, 3]
+type = varAdd
+trigger1 = time > 20
+fv = 7
+value = 1
+
+[State 290, 3]
+type = AngleDraw
+trigger1 = time > 40
+value = fvar(7)
+
+[State 290, 3]
+type = AngleAdd
+trigger1 = time > 40
+value = fvar(7)
+
+[State 290, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+value = 6,0
+
+[State 290, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+projid = 200
+projanim = 200
+projcancelanim = 199
+projremanim = -1
+offset = 0, 0
+velocity = 0, -2
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 290, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+projid = 200
+projanim = 200
+projcancelanim = 199
+projremanim = -1
+offset = 0, 0
+velocity = 2, 0
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 290, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+projid = 200
+projanim = 200
+projcancelanim = 199
+projremanim = -1
+offset = 0, 0
+velocity = 0, 2
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 290, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+projid = 200
+projanim = 200
+projcancelanim = 199
+projremanim = -1
+offset = 0, 0
+velocity = -2, 0
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 290, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+projid = 200
+projanim = 200
+projcancelanim = 199
+projremanim = -1
+offset = 0, 0
+velocity = 2, -2
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 290, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+projid = 200
+projanim = 200
+projcancelanim = 199
+projremanim = -1
+offset = 0, 0
+velocity = 2, 2
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 290, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+projid = 200
+projanim = 200
+projcancelanim = 199
+projremanim = -1
+offset = 0, 0
+velocity = -2, 2
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 290, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 50
+projid = 200
+projanim = 200
+projcancelanim = 199
+projremanim = -1
+offset = 0, 0
+velocity = -2, -2
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 290, 9]
+type = DestroySelf
+trigger1 = Time = 120
+
+;---------------------------------------------------------------------------
+; ENEMY_CASTLE
+[Statedef 300]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+
+[State 300, 2]
+type = changestate
+triggerall =  var(7) = 0
+trigger1 = parent, var(19) = 5 && numhelper(320) = 0 && parent, var(29) = 1
+trigger2 = parent, var(19) = 20 && numhelper(320) = 0 && parent, var(29) = 2
+trigger3 = parent, var(19) = 5 && numhelper(320) = 0 && parent, var(29) = 3
+value = 320
+
+[State 300, 2]
+type = changeanim
+trigger1 = time = 0 && var(7) = 0
+value = 370
+
+[State 300, 2]
+type = VarRandom
+trigger1 = time = 0 && var(7) = 0
+v = 8
+range = 0,1
+
+[State 300, 2]
+type = PosSet
+trigger1 = time = 0 && var(7) = 0
+x = -210 + ((var(8)=1)*420)
+
+[State 300, 2]
+type = VarAdd
+trigger1 = 1
+v = 7
+value = 1
+
+[State 300, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 301
+time = -1
+
+[State 300, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 300, ROCKET]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 20 - ((parent,var(17)=1)*15)
+projid = 1060
+projanim = 1060
+projcancelanim = 199
+offset = 0, 0
+velocity = 0,-3
+remvelocity = 0,0
+accel = .01 + ((random<500)*.01) - ((random<500)*.01) + ((random<500)*.01) - ((random<500)*.01), .05
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -350,50
+numhits = 0
+
+[State 300, 3]
+type = posAdd
+trigger1 = 1
+y = -.01
+
+[State 300, 3]
+type = VelSet
+trigger1 = var(8) = 0
+x = -.25
+
+[State 300, 3]
+type = VelSet
+trigger1 = var(8) = 1
+x = .25
+
+[State 300, 9]
+type = DestroySelf
+trigger1 = pos X > 215 || pos X < -215
+trigger2 = p2stateno >= 10000 && p2stateno < 14000
+
+[Statedef 301]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 301, CASTLEHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 301, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26)+25,0,0
+time = 1
+
+[State 301, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 301, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > 250
+value = 302
+
+[State 301, 2]
+type = changestate
+trigger1 = Time = 0
+value = 300
+
+[Statedef 302]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 371
+
+[State 302, 6]
+type = PosAdd
+trigger1 = 1
+y = 1
+
+[State 302, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 302, 7]
+type = AngleAdd
+trigger1 = 1
+value = -1
+
+[State 302, 0]
+type = PlaySnd
+trigger1 = TimeMod = 8,0
+value = 6,2 + ((random<500)*1) + ((random<500)*1)
+
+[State 302, 0]
+type = Explod
+trigger1 = TimeMod = 16,0
+anim = 199
+pos = 0,0
+postype = p1
+sprpriority = 20
+ownpal = 1
+scale = 1,1
+random = 60, 60
+
+[State 302, 2]
+type = DestroySelf
+trigger1 = Time = 250
+
+;---------------------------------------------------------------------------
+; KAMEYAMA
+[Statedef 310]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+
+[State 310, 2]
+type = changeanim
+trigger1 = time = 0 && var(7) = 0
+value = 380
+
+[State 310, 2]
+type = PosSet
+trigger1 = time = 0 && var(7) = 0
+x = -140 + ((random<500)*70) + ((random<500)*70) + ((random<500)*70) + ((random<500)*70)
+y = -240
+
+[State 310, 2]
+type = VarSet
+trigger1 = time = 0 && var(7) = 0 && pos X < 0
+v = 8
+value = 0
+
+[State 310, 2]
+type = VarSet
+trigger1 = time = 0 && var(7) = 0 && pos X >= 0
+v = 8
+value = 1
+
+[State 310, 2]
+type = VarAdd
+trigger1 = 1
+v = 7
+value = 1
+
+[State 310, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 311
+time = -1
+
+[State 310, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag =
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 310, SHOT]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 10 * (parent, var(29))
+projid = 220
+projanim = 210
+projcancelanim = 199
+projsprpriority = -11
+offset = 0, 0
+velocity = 0 + ((random<500)*.5) - ((random<500)*.5) + ((random<500)*.5) - ((random<500)*.5), 1 + ((random<500)*.5) + ((random<500)*.5) + ((random<500)*.5)
+remvelocity = 0,0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -350,50
+numhits = 0
+
+[State 310, 3]
+type = posAdd
+trigger1 = 1
+y = .5
+
+[State 310, 3]
+type = VelSet
+trigger1 = var(8) = 0
+x = -.25
+
+[State 310, 3]
+type = VelSet
+trigger1 = var(8) = 1
+x = .25
+
+[State 310, 9]
+type = DestroySelf
+trigger1 = pos X > 215 || pos X < -215 || pos Y > 70
+trigger2 = p2stateno >= 10000 && p2stateno < 14000
+
+[Statedef 311]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 311, CASTLEHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 311, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26)+75,0,0
+time = 1
+
+[State 311, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 311, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > 120 + (parent, var(29) * 20)
+value = 312
+
+[State 311, 2]
+type = changestate
+trigger1 = Time = 0
+value = 310
+
+[Statedef 312]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 381
+
+[State 312, 6]
+type = PosAdd
+trigger1 = 1
+y = 1
+
+[State 312, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 312, 7]
+type = AngleAdd
+trigger1 = 1
+value = -1
+
+[State 312, 0]
+type = PlaySnd
+trigger1 = TimeMod = 8,0
+value = 6,2 + ((random<500)*1) + ((random<500)*1)
+
+[State 312, 0]
+type = Explod
+trigger1 = TimeMod = 16,0
+anim = 199
+pos = 0,0
+postype = p1
+sprpriority = 20
+ownpal = 1
+scale = 1,1
+random = 60, 60
+
+[State 312, 2]
+type = DestroySelf
+trigger1 = Time = 250
+
+;---------------------------------------------------------------------------
+; PLANET
+[Statedef 320]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 389 + parent, var(29)
+
+[State 320, 1]
+type = SprPriority
+trigger1 = 1
+value = -50
+
+[State 320, 2]
+type = PosSet
+trigger1 = time = 0
+x = 0
+y = -200
+
+[State 320, 3]
+type = posAdd
+trigger1 = 1
+y = .6
+
+[State 320, 4]
+type = changestate
+trigger1 = Time = 1450 && parent, var(29) = 1
+value = 321
+ctrl = 0
+
+[State 320, 5]
+type = DestroySelf
+trigger1 = Time = 1550 && parent, var(29) != 3
+trigger2 = Time = 2650 && parent, var(29) = 3
+trigger3 = p2stateno >= 10000 && p2stateno < 14000
+
+[Statedef 321]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 393
+
+[State 321, 1]
+type = SprPriority
+trigger1 = 1
+value = -50
+
+[State 321, 2]
+type = PosSet
+trigger1 = time = 0
+x = 0
+y = -200
+
+[State 321, 3]
+type = posAdd
+trigger1 = 1
+y = .6
+
+[State 321, 5]
+type = DestroySelf
+trigger1 = Time = 2650
+trigger2 = p2stateno >= 10000 && p2stateno < 14000
+
+;---------------------------------------------------------------------------
+; ASTEROID_FIELD!
+[Statedef 330]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+
+[State 330, 5]
+type = varRandom
+trigger1 = time = 0
+v = 8
+range = 0,7
+
+[State 330, 5]
+type = changeanim
+trigger1 = time = 0
+value = 600 + var(8)
+
+[State 330, 2]
+type = PosSet
+trigger1 = time = 0 && pos Y < -90
+x = 0 + ((random<500)*75) - ((random<500)*75) + ((random<500)*75) - ((random<500)*75)
+
+[State 330, 5]
+type = varRandom
+trigger1 = time = 0
+v = 13
+range = 1,2
+
+[State 330, 2]
+type = VelSet
+trigger1 = var(13) = 1
+x = -.1
+
+[State 330, 2]
+type = VelSet
+trigger1 = var(13) = 2
+x = .1
+
+[State 330, 9]
+type = VelSet
+trigger1 = Time = 0
+y = 2
+
+[State 330, 5]
+type = varRandom
+trigger1 = time = 0
+v = 14
+range = 3,8
+
+[State 330, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 330, 7]
+type = AngleAdd
+trigger1 = 1
+value = var(14)
+
+[State 330, 10]
+type = makedust
+trigger1 = 1
+pos = 0,0
+spacing = 16
+
+[State 330, 9]
+type = DestroySelf
+trigger1 = Time = 160
+
+;---------------------------------------------------------------------------
+; Boss#1
+[Statedef 1000]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1000
+
+[State 1000, ALERT]
+type = PlaySnd
+trigger1 = var(9) = 0
+value = 6,11
+
+[State 1000, ALERT]
+type = PlaySnd
+trigger1 = var(9) = 50
+value = 6,8
+loop = 200
+channel = 7
+volume = 200
+
+[State 1000, ALERT]
+type = Explod
+trigger1 = var(9) = 0
+anim = 10010
+pos = 160,100
+postype = left
+ontop = 1
+ownpal = 1
+
+[State 1000, ALERT]
+type = VarAdd
+trigger1 = 1
+v = 9
+value = 1
+
+[State 1000]
+type = ParentVarSet
+trigger1 = 1
+v = 19
+value = 0
+
+[State 1000]
+type = ParentVarSet
+trigger1 = 1
+v = 11
+value = 0
+
+[State 1000, 1]
+type = VarSet
+trigger1 = pos Y < -150
+v = 26
+value = 0
+
+[State 1000, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1050
+time = -1
+
+[State 1000, PATTERN]
+type = VarSet
+trigger1 = pos X > 130
+v = 25
+value = 0
+
+[State 1000, PATTERN]
+type = VarSet
+trigger1 = pos X < -130
+v = 25
+value = 1
+
+[State 1000, PATTERN]
+type = VelSet
+trigger1 = var(25) = 0 && pos y < -100 && pos y > -160
+x = 5
+
+[State 1000, PATTERN]
+type = VelSet
+trigger1 = var(25) = 1 && pos y < -100 && pos y > -160
+x = -5
+
+[State 1000, PATTERN]
+type = PosAdd
+trigger1 = pos y < -140
+y = .5
+
+[State 1000, PATTERN]
+type = PosAdd
+trigger1 = pos y > -140
+y = -.5
+
+[State 1000, SPECIAL_ATTACK]
+type = VarSet
+trigger1 = var(16) > 400 || pos Y < -150
+v = 16
+value = 0
+
+[State 1000, SPECIAL_ATTACK]
+type = VarAdd
+trigger1 = 1
+v = 16
+value = 1
+
+[State 1000, SPECIAL_ATTACK]
+type = PalFX
+trigger1 = var(16) > 370
+add = 155,155,155
+sinadd = 15,15,15,15
+time = 1
+
+[State 1000, SPECIAL_ATTACK]
+type = VelSet
+trigger1 = var(16) = 400
+y = 16
+
+[State 1000, SPECIAL_ATTACK]
+type = PlaySnd
+trigger1 = var(16) = 400
+value = 6,9
+
+[State 1000, SPECIAL_ATTACK]
+type = VelSet
+trigger1 = pos y > 0
+y = 0
+
+[State 1000, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1000, 2]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 40 + ((pos y > -140)*260)
+projid = 200
+projanim = 200
+projremanim = -1
+offset = 0, 0
+velocity = ((random<500)*.5)+((random<500)*.5)-((random<500)*.5)+((random<500)*.5)-((random<500)*.5), 3
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1000, 2]
+type = Projectile
+trigger1 = p2stateno < 10000 && random < 10
+projid = 1060
+projanim = 1060
+projremanim = -1
+offset = 0, 0
+velocity = ((random<500)*1)+((random<500)*1)-((random<500)*1)+((random<500)*1)-((random<500)*1)+((random<500)*1)-((random<500)*1), -4
+remvelocity = 0, 0
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1000, 2]
+type = changestate
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+value = 9500
+
+; Boss_Hit
+[Statedef 1050]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1050, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1050, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26)/2 + 25,0,0
+time = 1
+
+[State 1050, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1050, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > (499-((parent,var(17)*200)))
+value = 9000
+
+[State 1050, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1000
+
+;---------------------------------------------------------------------------
+; Boss#2_DOWN
+[Statedef 1100]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1100
+
+[State 1100, ALERT]
+type = PlaySnd
+trigger1 = var(9) = 0
+value = 6,11
+
+[State 1100, ALERT]
+type = PlaySnd
+trigger1 = var(9) = 50
+value = 6,8
+loop = 200
+channel = 7
+volume = 200
+
+[State 1100, ALERT]
+type = Explod
+trigger1 = var(9) = 0
+anim = 10010
+pos = 160,100
+postype = left
+ontop = 1
+ownpal = 1
+
+[State 1100, ALERT]
+type = VarAdd
+trigger1 = 1
+v = 9
+value = 1
+
+[State 1100, 3]
+type = AngleDraw
+trigger1 = 1
+
+[State 1100, 4]
+type = AngleAdd
+trigger1 = var(25) = 0
+value = -1
+
+[State 1100, 4]
+type = AngleAdd
+trigger1 = var(25) = 1
+value = 1
+
+[State 1100]
+type = ParentVarSet
+trigger1 = 1
+v = 19
+value = 0
+
+[State 1100]
+type = ParentVarSet
+trigger1 = 1
+v = 11
+value = 0
+
+[State 1100, SPECIAL_ATTACK]
+type = VarSet
+trigger1 = var(16) > 600 || pos Y < -200
+v = 16
+value = 0
+
+[State 1100, SPECIAL_ATTACK]
+type = VarAdd
+trigger1 = 1
+v = 16
+value = 1
+
+[State 1100, SPECIAL_ATTACK]
+type = changestate
+trigger1 = var(16) > 350 && pos Y < -120
+value = 1120
+ctrl = 0
+
+[State 1100, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1150
+time = -1
+
+[State 1100, PATTERN]
+type = VarSet
+trigger1 = pos X > 130
+v = 25
+value = 0
+
+[State 1100, PATTERN]
+type = VarSet
+trigger1 = pos X < -130
+v = 25
+value = 1
+
+[State 1100, PATTERN]
+type = VelSet
+trigger1 = var(25) = 0
+x = 2
+
+[State 1100, PATTERN]
+type = VelSet
+trigger1 = var(25) = 1
+x = -2
+
+[State 1100, PATTERN]
+type = VarAdd
+trigger1 = fvar(28) < 4
+fv = 28
+value = .05
+
+[State 1100, PATTERN]
+type = PosAdd
+trigger1 = 1
+y = fvar(28)
+
+[State 1100, PATTERN]
+type = changestate
+trigger1 = pos Y > 20
+value = 1110
+
+[State 1100, SPECIAL_ATTACK]
+type = VelSet
+trigger1 = pos y > 0
+y = 0
+
+[State 1100, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1100, 2]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 40
+projid = 510
+projanim = 200
+projremanim = -1
+offset = -22, 0
+velocity = .5, 3
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1100, 2]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 40
+projid = 510
+projanim = 200
+projremanim = -1
+offset = 22, 0
+velocity = -.5, 3
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1100, 2]
+type = Projectile
+trigger1 = p2stateno < 10000 && random < 40
+projid = 1060
+projanim = 1060
+projremanim = -1
+offset = 0, 0
+velocity = ((random<500)*1)+((random<500)*1)-((random<500)*1)+((random<500)*1)-((random<500)*1)+((random<500)*1)-((random<500)*1), -4
+remvelocity = 0, 0
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1100, 2]
+type = changestate
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+value = 9500
+
+;----------
+; Boss#2_UP
+[Statedef 1110]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1100
+
+[State 1110, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1160
+time = -1
+
+[State 1110, 3]
+type = AngleDraw
+trigger1 = 1
+
+[State 1110, 4]
+type = AngleAdd
+trigger1 = var(25) = 0
+value = -1
+
+[State 1110, 4]
+type = AngleAdd
+trigger1 = var(25) = 1
+value = 1
+
+[State 1110, PATTERN]
+type = VarSet
+trigger1 = pos X > 130
+v = 25
+value = 0
+
+[State 1110, PATTERN]
+type = VarSet
+trigger1 = pos X < -130
+v = 25
+value = 1
+
+[State 1110, PATTERN]
+type = VelSet
+trigger1 = var(25) = 0
+x = 2
+
+[State 1110, PATTERN]
+type = VelSet
+trigger1 = var(25) = 1
+x = -2
+
+[State 1110, PATTERN]
+type = VarAdd
+trigger1 = fvar(28) >= 0
+fv = 28
+value = -.04
+
+[State 1110, PATTERN]
+type = PosAdd
+trigger1 = 1
+y = -fvar(28)
+
+[State 1110, PATTERN]
+type = VarAdd
+trigger1 = fvar(28) <= .1 || pos y < -170
+fv = 28
+value = 0
+
+[State 1110, PATTERN]
+type = changestate
+trigger1 = fvar(28) <= .1 || pos y < -170
+value = 1100
+
+[State 1110, SPECIAL_ATTACK]
+type = VarSet
+trigger1 = var(16) > 600 || pos Y < -200
+v = 16
+value = 0
+
+[State 1110, SPECIAL_ATTACK]
+type = VarAdd
+trigger1 = 1
+v = 16
+value = 1
+
+[State 1110, SPECIAL_ATTACK]
+type = changestate
+trigger1 = var(16) > 350 && pos Y < -120
+value = 1120
+ctrl = 0
+
+[State 1110, SPECIAL_ATTACK]
+type = VelSet
+trigger1 = pos y > 0
+y = 0
+
+[State 1110, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1110, 2]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 400
+projid = 510
+projanim = 200
+projremanim = -1
+offset = -22, 0
+velocity = .5, 3
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1110, 2]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 400
+projid = 510
+projanim = 200
+projremanim = -1
+offset = 22, 0
+velocity = -.5, 3
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1110, 2]
+type = changestate
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+value = 9500
+
+;---------------
+; Boss#2_SPECIAL
+[Statedef 1120]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0
+
+[State 1120, SPECIAL_ATTACK]
+type = VarAdd
+trigger1 = 1
+v = 16
+value = 1
+
+[State 1120, SPECIAL_ATTACK]
+type = changestate
+trigger1 = var(16) > 600
+value = 1100
+ctrl = 0
+
+[State 1120, 1]
+type = nothitby
+trigger1 = 1
+value = SCA
+time = 1
+
+[State 1120, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1120, 3]
+type = VarSet
+trigger1 = Time = 0
+value = 0
+
+[State 1120, 3]
+type = AngleDraw
+trigger1 = Time = 0
+
+[State 1120, PATTERN]
+type = VarSet
+trigger1 = pos X > 130
+v = 25
+value = 0
+
+[State 1120, PATTERN]
+type = VarSet
+trigger1 = pos X < -130
+v = 25
+value = 1
+
+[State 1120, PATTERN]
+type = VelSet
+trigger1 = var(25) = 0
+x = 3
+
+[State 1120, PATTERN]
+type = VelSet
+trigger1 = var(25) = 1
+x = -3
+
+[State 1120, PATTERN]
+type = PlaySnd
+trigger1 = p2stateno < 10000 && timemod = 13,0
+value = 6,7
+
+[State 1120, 2]
+type = Projectile
+trigger1 = p2stateno < 10000 && timemod = 13,0
+projid = 1120
+projanim = 1120
+projremanim = -1
+projremovetime = 13
+offset = 0, 0
+velocity = 0, 0
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1120, 2]
+type = changestate
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+value = 9500
+
+;-------------
+;Boss#2_Hit_DOWN
+[Statedef 1150]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1150, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1150, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26)/2 + 25,0,0
+time = 1
+
+[State 1150, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1150, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > (499-((parent,var(17)*200)))
+value = 9000
+
+[State 1150, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1100
+
+;-------------
+;Boss#2_Hit_UP
+[Statedef 1160]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1160, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1160, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26)/2 + 25,0,0
+time = 1
+
+[State 1160, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1160, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > (499-((parent,var(17)*200)))
+value = 9000
+
+[State 1160, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1110
+
+;---------------------------------------------------------------------------
+; Boss#3
+[Statedef 1200]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1200, ALERT]
+type = PlaySnd
+trigger1 = var(9) = 0
+value = 6,11
+
+[State 1200, ALERT]
+type = PlaySnd
+trigger1 = var(9) = 50
+value = 6,8
+loop = 200
+channel = 7
+volume = 200
+
+[State 1200, ALERT]
+type = Explod
+trigger1 = var(9) = 0
+anim = 10010
+pos = 160,100
+postype = left
+ontop = 1
+ownpal = 1
+
+[State 1200, LEFT_ARM]
+type = helper
+trigger1 = var(9) = 0
+ID = 1260
+pos = 0, 0
+postype = left
+stateno = 1260
+helpertype = normal
+name = "LeftArm"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, RIGHT_ARM]
+type = helper
+trigger1 = var(9) = 0
+ID = 1270
+pos = 0, 0
+postype = left
+stateno = 1270
+helpertype = normal
+name = "RightArm"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, ALERT]
+type = VarAdd
+trigger1 = 1
+v = 9
+value = 1
+
+[State 1200]
+type = ParentVarSet
+trigger1 = 1
+v = 19
+value = 0
+
+[State 1200]
+type = ParentVarSet
+trigger1 = 1
+v = 11
+value = 0
+
+[State 1200, 1]
+type = nothitby
+trigger1 = numhelper(1260) = 1 || numhelper(1270) = 1
+value = SCA
+time = 1
+
+[State 1200, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1250
+time = -1
+
+[State 1200, 2]
+type = SprPriority
+trigger1 = 1
+value = -11
+
+[State 1200, PATTERN]
+type = VarSet
+trigger1 = pos X > 130
+v = 25
+value = 0
+
+[State 1200, PATTERN]
+type = VarSet
+trigger1 = pos X < -130
+v = 25
+value = 1
+
+[State 1200, PATTERN]
+type = VelSet
+trigger1 = var(25) = 0 && pos y < -100 && pos y > -160 && var(16) < 250
+x = 2
+
+[State 1200, PATTERN]
+type = VelSet
+trigger1 = var(25) = 1 && pos y < -100 && pos y > -160 && var(16) < 250
+x = -2
+
+[State 1200, PATTERN]
+type = PosAdd
+trigger1 = pos y < -140
+y = .5
+
+[State 1200, PATTERN]
+type = PosAdd
+trigger1 = pos y > -140
+y = -.5
+
+[State 1200, SPECIAL_ATTACK]
+type = VarSet
+trigger1 = var(16) > 550
+v = 16
+value = 0
+
+[State 1200, SPECIAL_ATTACK]
+type = VarRandom
+trigger1 = var(16) = 1
+v = 8
+range = 1,4
+
+[State 1200, 1]
+type = changeanim
+trigger1 = var(16) = 0
+value = 1200
+
+[State 1200, SPECIAL_ATTACK]
+type = VarAdd
+trigger1 = 1
+v = 16
+value = 1
+
+[State 1200, SPECIAL_ATTACK]
+type = changeanim
+trigger1 = var(16) = 350
+value = 1260
+
+[State 1200, SPECIAL_ATTACK]
+type = helper
+trigger1 = var(16) = 10 && var(8) != 1
+ID = 1220
+pos = 40, 270
+postype = left
+stateno = 1220
+helpertype = normal
+name = "Fighter"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, SPECIAL_ATTACK]
+type = helper
+trigger1 = var(16) = 11 && var(8) != 2
+ID = 1220
+pos = 80, 270
+postype = left
+stateno = 1220
+helpertype = normal
+name = "Fighter"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, SPECIAL_ATTACK]
+type = helper
+trigger1 = var(16) = 12 && var(8) != 3
+ID = 1220
+pos = 120, 270
+postype = left
+stateno = 1220
+helpertype = normal
+name = "Fighter"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, SPECIAL_ATTACK]
+type = helper
+trigger1 = var(16) = 13 && var(8) != 4
+ID = 1220
+pos = 160, 270
+postype = left
+stateno = 1220
+helpertype = normal
+name = "Fighter"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, SPECIAL_ATTACK]
+type = helper
+trigger1 = var(16) = 14 && var(8) != 3
+ID = 1220
+pos = 200, 270
+postype = left
+stateno = 1220
+helpertype = normal
+name = "Fighter"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, SPECIAL_ATTACK]
+type = helper
+trigger1 = var(16) = 15 && var(8) != 2
+ID = 1220
+pos = 240, 270
+postype = left
+stateno = 1220
+helpertype = normal
+name = "Fighter"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, SPECIAL_ATTACK]
+type = helper
+trigger1 = var(16) = 16 && var(8) != 1
+ID = 1220
+pos = 280, 270
+postype = left
+stateno = 1220
+helpertype = normal
+name = "Fighter"
+ownpal = 1
+keyctrl = 0
+
+[State 1200, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1200, 2]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = var(16) = 450
+projid = 1270
+projanim = 1270
+projremanim = -1
+projremovetime = 100
+offset = -1, -21
+velocity = 0, 0
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+projhits = 100
+
+[State 1200, 2]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 500 && var(16) < 150 && var(16) > 50
+projid = 510
+projanim = 200
+projremanim = -1
+offset = 0, 0
+velocity = ((random<500)*.5)+((random<500)*.5)-((random<500)*.5)+((random<500)*.5)-((random<500)*.5), 3
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1200, 2]
+type = Projectile
+trigger1 = p2stateno < 10000 && random < 500 && var(16) < 350 && var(16) > 200
+projid = 1060
+projanim = 1060
+projremanim = -1
+offset = 0, 0
+velocity = ((random<500)*1)+((random<500)*1)-((random<500)*1)+((random<500)*1)-((random<500)*1)+((random<500)*1)-((random<500)*1), -4
+remvelocity = 0, 0
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1200, 2]
+type = changestate
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+value = 9500
+
+[Statedef 1220]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 340
+
+[State 1220, 0]
+type = Explod
+trigger1 = Time = 0
+anim = 342
+pos = 0,-40
+postype = p1
+ownpal = 1
+ontop = 1
+removetime = 60
+
+[State 1220, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 1220, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1220, 2]
+type = PosSet
+trigger1 = time = 0
+y = 60
+
+[State 1220, 3]
+type = VelSet
+trigger1 = time > 80 && time <= 110
+y = -3
+
+[State 1220, 4]
+type = VelAdd
+trigger1 = time > 110 && pos X < 0
+x = -1
+y = - .1
+
+[State 1220, 4]
+type = VelAdd
+trigger1 = time > 110 && pos X >= 0
+x = 1
+y = - .1
+
+[State 1220, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 25
+value = 6,5
+
+[State 1220, 6]
+type = AngleDraw
+trigger1 = time > 110
+
+[State 1220, 7]
+type = AngleAdd
+trigger1 = time > 110 && pos X < 0
+value = .7
+
+[State 1220, 7]
+type = AngleAdd
+trigger1 = time > 110 && pos X > 0
+value = -.7
+
+[State 1220, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 80
+trigger2 = time = 90
+trigger3 = time = 100
+trigger4 = time = 110
+value = 6,1
+
+[State 1220, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 80
+trigger2 = time = 90
+trigger3 = time = 100
+trigger4 = time = 110
+projid = 200
+projanim = 341
+projremanim = -1
+offset = 0, -10
+velocity = 0, -10
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 1220, 9]
+type = DestroySelf
+trigger1 = Time = 200
+trigger2 = p2stateno >= 10000
+
+; Boss_Hit
+[Statedef 1250]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1250, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1250, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26)/2 + 25,0,0
+time = 1
+
+[State 1250, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1250, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > (500-((parent,var(17)*200)))
+value = 9000
+
+[State 1250, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1200
+
+; LeftArm
+[Statedef 1260]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1201
+
+[State 1260, 2]
+type = Bindtoparent
+trigger1 = 1
+pos = 0,0
+time = 20
+
+[State 1260, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1261
+time = -1
+
+[State 1260, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1260, 9]
+type = DestroySelf
+trigger1 = p2stateno >= 10000
+
+; RightArm
+[Statedef 1270]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1202
+
+[State 1270, 2]
+type = Bindtoparent
+trigger1 = 1
+pos = 0,0
+time = 20
+
+[State 1270, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1271
+time = -1
+
+[State 1270, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1270, 9]
+type = DestroySelf
+trigger1 = p2stateno >= 10000
+
+; LeftArm_Hit
+[Statedef 1261]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1261, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1261, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26) + 25,0,0
+time = 1
+
+[State 1261, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1261, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > 250
+value = 1280
+
+[State 1261, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1260
+
+; RightArm_Hit
+[Statedef 1271]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1271, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1271, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26) + 25,0,0
+time = 1
+
+[State 1271, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1271, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > 250
+value = 1280
+
+[State 1271, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1270
+
+; Arm_Destroyed
+[Statedef 1280]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 199
+
+[State 1280, 1]
+type = posAdd
+trigger1 = time = 0
+x = (-50 + ((prevstateno = 1261)*100))
+
+[State 1280, 2]
+type = Destroyself
+trigger1 = AnimTime = 0
+
+;---------------------------------------------------------------------------
+; Boss#4
+[Statedef 1300]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1300
+sprpriority = -11
+
+[State 1300]
+type = helper
+triggerall = Timemod = 30,0 && numhelper(211) < 4 && var(28) = 2
+trigger1 = var(32) > 250 && var(32) < 350
+ID = 211
+pos =  210,100
+postype = left
+stateno = 1335
+helpertype = normal
+name = "Enemy"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = PalFX
+trigger1 = var(16) = 1200
+add = 0,0,0
+sinadd = 50,0,0,50
+time = 100000
+
+[State 1300]
+type = EnvShake
+trigger1 = var(16) = 1150
+time = 1000
+
+[State 1300]
+type = EnvShake
+trigger1 = var(16) = 3200
+time = 1600
+
+[State 1300]
+type = VarRandom
+trigger1 = 1
+v = 7
+range = 0,6
+
+[State 1300]
+type = helper
+triggerall = numhelper(201) < 7 && random < 40
+trigger1 = var(16) > 700 && var(16) < 2300
+trigger2 = var(16) > 3100 && var(16) < 4500
+ID = 201
+pos = 0 + ((random<500)*40) + ((random<500)*40) + ((random<500)*40) + ((random<500)*40) + ((random<500)*40) + ((random<500)*40) + ((random<500)*40) + ((random<500)*40) + ((random<500)*40), -240
+postype = left
+stateno = 1340
+helpertype = normal
+name = "Enemy2"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = Time = 0
+ID = 200
+pos =  1 ,-388
+postype = p1
+stateno = 1305
+helpertype = normal
+name = "Turm"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = Time = 0
+ID = 200
+pos =  1 ,-560
+postype = p1
+stateno = 1305
+helpertype = normal
+name = "Turm2"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = Time = 0
+ID = 200
+pos =  1 ,-620
+postype = p1
+stateno = 1305
+helpertype = normal
+name = "Turm3"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = Time = 0
+ID = 200
+pos =  -38 ,-440
+postype = p1
+stateno = 1315
+helpertype = normal
+name = "Turm_Klein1"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = Time = 20
+ID = 200
+pos =  81 ,-440
+postype = p1
+stateno = 1315
+helpertype = normal
+name = "Turm_Klein2"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = Time = 40
+ID = 200
+pos =  -38 ,-380
+postype = p1
+stateno = 1315
+helpertype = normal
+name = "Turm_Klein3"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = Time = 60
+ID = 200
+pos =  81 ,-380
+postype = p1
+stateno = 1315
+helpertype = normal
+name = "Turm_Klein4"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = var(16) = 710
+ID = 200
+pos =  -38 ,-640
+postype = p1
+stateno = 1315
+helpertype = normal
+name = "Turm_Klein5"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = var(16) = 730
+ID = 200
+pos =  81 ,-640
+postype = p1
+stateno = 1315
+helpertype = normal
+name = "Turm_Klein6"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = var(16) = 750
+ID = 200
+pos =  -38 ,-580
+postype = p1
+stateno = 1315
+helpertype = normal
+name = "Turm_Klein7"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = var(16) = 770
+ID = 200
+pos =  81 ,-580
+postype = p1
+stateno = 1315
+helpertype = normal
+name = "Turm_Klein8"
+ownpal = 1
+keyctrl = 0
+
+[State 1300]
+type = helper
+trigger1 = var(16) = 3200
+ID = 1360
+pos =  160 ,-320
+postype = left
+stateno = 1325
+helpertype = normal
+name = "Mech"
+ownpal = 1
+keyctrl = 0
+
+[State 1300, ALERT]
+type = PlaySnd
+trigger1 = var(9) = 0
+value = 6,11
+
+[State 1300, ALERT]
+type = PlaySnd
+trigger1 = var(9) = 50
+value = 6,8
+loop = 200
+channel = 7
+volume = 200
+
+[State 1300, ALERT]
+type = Explod
+trigger1 = var(9) = 0
+anim = 10010
+pos = 160,100
+postype = left
+ontop = 1
+ownpal = 1
+
+[State 1300, ALERT]
+type = VarAdd
+trigger1 = 1
+v = 9
+value = 1
+
+[State 1300]
+type = ParentVarSet
+trigger1 = 1
+v = 19
+value = 0
+
+[State 1300]
+type = ParentVarSet
+trigger1 = 1
+v = 11
+value = 0
+
+[State 1300, 1]
+type = varadd
+trigger1 = var(28) != 2
+v = 16
+value = 1
+
+[State 1300, 1]
+type = varadd
+trigger1 = 1
+v = 32
+value = 1
+
+[State 1300, 1]
+type = varset
+trigger1 = var(32) > 500
+v = 32
+value = 0
+
+[State 1300, WAVES_RESET]
+type = VarSet
+trigger1 = var(16) = 710 || var(16) = 2990
+v = 8
+value = 0
+
+[State 1300, WAVE#1]
+type = VarSet
+trigger1 = var(16) = 700 || var(16) = 2980
+v = 28
+value = 2
+
+[State 1300, WAVES]
+type = VarSet
+trigger1 = var(16) = 500
+trigger2 = var(16) = 700 && var(8) = 5
+trigger3 = var(16) = 2980 && var(8) = 6
+trigger4 = var(16) = 3000
+v = 28
+value = 1
+
+[State 1300, PATTERN]
+type = PosAdd
+trigger1 = var(28) = 0
+y = 1
+
+[State 1300, PATTERN]
+type = PosAdd
+trigger1 = var(28) = 1
+y = .1
+
+[State 1300, PATTERN]
+type = PosAdd
+trigger1 = var(28) = 2
+y = 0
+
+[State 1300, SHOWSCORE]
+type = DisplayToClipboard
+trigger1 = 1
+text="BOSS_TIME: %d"
+params = var(16)
+ignorehitpause = 1
+
+[State 1300]
+type = ParentVarSet
+trigger1 = var(35) = 1
+v = 29
+value = 4
+
+[State 1380]
+type = stopsnd
+trigger1 = var(35) = 1
+trigger2 = p2stateno >= 10000 && p2stateno < 14000
+channel = 7
+
+[State 1300, 9]
+type = DestroySelf
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+trigger2 = var(35) = 1
+
+; TURM
+[Statedef 1305]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+sprpriority = -10
+
+[State 1305, 2]
+type = changeanim
+trigger1 = time = 0 && var(7) = 0
+value = 1305
+
+[State 1305, 2]
+type = VarAdd
+trigger1 = 1
+v = 7
+value = 1
+
+[State 1305, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 0
+y = 1
+
+[State 1305, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 1
+y = .1
+
+[State 1305, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 2
+y = 0
+
+[State 1305, 2]
+type = Projectile
+trigger1 = p2stateno < 10000 && random < 200 && parent, var(32) < 250 && pos Y > -240
+projid = 510
+projanim = 200
+projremanim = -1
+offset = 0, 8
+velocity = ((random<500)*.5)+((random<500)*.5)-((random<500)*.5)+((random<500)*.5)-((random<500)*.5), 3
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1305, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1306
+time = -1
+
+[State 1305, 9]
+type = DestroySelf
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+trigger2 = pos Y > 80
+
+; Turm_Hit
+[Statedef 1306]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1306, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1306, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26) + 25,0,0
+time = 1
+
+[State 1306, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1306, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > 250
+value = 1307
+
+[State 1306, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1305
+
+[Statedef 1307]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 199
+
+[State 1306]
+type = ParentVarAdd
+trigger1 = time = 0
+v = 8
+value = 1
+
+[State 1306, 2]
+type = DestroySelf
+trigger1 = AnimTime = 0
+
+; TURM_KLEIN
+[Statedef 1315]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+sprpriority = -10
+
+[State 1315, 2]
+type = changeanim
+trigger1 = time = 0 && var(7) = 0
+value = 1315
+
+[State 1315, 2]
+type = VarAdd
+trigger1 = 1
+v = 7
+value = 1
+
+[State 1315, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 0
+y = 1
+
+[State 1315, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 1
+y = .1
+
+[State 1315, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 2
+y = 0
+
+[State 1315, 1]
+type = varadd
+trigger1 = 1
+v = 16
+value = 1
+
+[State 1315, 1]
+type = varset
+trigger1 = var(16) >= 236
+v = 16
+value = 0
+
+[State 1315, 2]
+type = Projectile
+trigger1 = p2stateno < 10000 && random < 120 && var(16) < 208 && var(16) > 128 && pos Y > -240
+projid = 510
+projanim = 200
+projremanim = -1
+offset = -21, 40
+velocity = 0, 4
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1315, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1316
+time = -1
+
+[State 1315, 9]
+type = DestroySelf
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+trigger2 = pos Y > 80
+
+; Turm_Klein_Hit
+[Statedef 1316]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1316, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1316, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26)/2 + 25,0,0
+time = 1
+
+[State 1316, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1316, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > 120
+value = 1317
+
+[State 1316, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1315
+
+[Statedef 1317]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 199
+
+[State 1317]
+type = ParentVarAdd
+trigger1 = time = 0
+v = 8
+value = 1
+
+[State 1317, 2]
+type = DestroySelf
+trigger1 = AnimTime = 0
+
+; MECH(BOSS#5)
+[Statedef 1325]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 1360
+
+[State 1325, 2]
+type = VarSet
+trigger1 = Time = 0
+v = 35
+value = 0
+
+[State 1325, 2]
+type = ParentVarSet
+trigger1 = Time = 0
+v = 35
+value = 0
+
+[State 1325, 2]
+type = changestate
+trigger1 = var(35) = 1
+value = 1385
+
+[State 1325]
+type = helper
+trigger1 = NumHelper(1370) = 0
+ID = 1370
+pos =  0 ,-100
+postype = p1
+stateno = 1370
+helpertype = normal
+name = "Head"
+ownpal = 1
+keyctrl = 0
+
+[State 1325]
+type = VarRandom
+trigger1 = 1
+v = 8
+range = 0,1
+
+[State 1325]
+type = ParentVarSet
+trigger1 = pos Y >= -80
+v = 28
+value = 0
+
+[State 1325, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 0 && pos Y < -80
+y = 0
+
+[State 1325, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 1 && pos Y < -80
+y = .1
+
+[State 1325, PATTERN]
+type = PosAdd
+trigger1 = parent, var(28) = 2 && pos Y < -80
+y = 0
+
+[State 1325, PATTERN]
+type = VarSet
+trigger1 = pos X > 130
+v = 25
+value = 1
+
+[State 1325, PATTERN]
+type = VarSet
+trigger1 = pos X < -130
+v = 25
+value = 0
+
+[State 1325, PATTERN]
+type = VelSet
+trigger1 = var(25) = 0 && pos Y >= -80
+x = 2
+
+[State 1325, PATTERN]
+type = VelSet
+trigger1 = var(25) = 1 && pos Y >= -80
+x = -2
+
+[State 1325, SPECIAL_ATTACK]
+type = VarAdd
+trigger1 = pos Y > -100
+v = 16
+value = 1
+
+[State 1325, SPECIAL_ATTACK]
+type = VarSet
+trigger1 = var(16) > 500
+v = 16
+value = 0
+
+[State 1325, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1325, 2]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = random < 500 && var(16) < 150 && var(16) > 50
+projid = 510
+projanim = 200
+projremanim = -1
+offset = 0, -86
+velocity = ((random<500)*.5)+((random<500)*.5)-((random<500)*.5)+((random<500)*.5)-((random<500)*.5), 3
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1325, 2]
+type = Projectile
+trigger1 = p2stateno < 10000 && random < 500 && var(16) < 350 && var(16) > 150
+projid = 1060
+projanim = 1060
+projremanim = -1
+offset = 0, -86
+velocity = ((random<500)*1)+((random<500)*1)-((random<500)*1)+((random<500)*1)-((random<500)*1)+((random<500)*1)-((random<500)*1), -4
+remvelocity = 0, 0
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1325, 2]
+type = changestate
+trigger1 = var(16) = 375
+value = 1326 + var(8)
+
+[State 1325, 2]
+type = changestate
+trigger1 = numhelper(1370) = 0
+value = 1385
+
+[State 1325, 2]
+type = changestate
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+value = 1385
+
+[Statedef 1326]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 1361
+
+[State 1326, 2]
+type = changestate
+trigger1 = var(35) = 1
+value = 1385
+
+[State 1326, 3]
+type = PlaySnd
+trigger1 = Time = 150
+value = 6,7
+
+[State 1326, 4]
+type = PlaySnd
+trigger1 = Time = 150
+value = 6,9
+
+[State 1326, 5]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = Time = 150
+projid = 1270
+projanim = 1270
+projremanim = -1
+projremovetime = 100
+offset = -2, -88
+velocity = 0, 0
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+projhits = 100
+
+[State 1326, 6]
+type = changestate
+trigger1 = Time = 275
+value = 1325
+
+[Statedef 1327]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 1362
+
+[State 1327, 2]
+type = changestate
+trigger1 = var(35) = 1
+value = 1385
+
+[State 1327, PATTERN]
+type = VelSet
+trigger1 = time > 50 && time < 100 && pos X > -150
+x = -3
+
+[State 1327, PATTERN]
+type = PosAdd
+trigger1 = time > 50 && time < 100 && pos Y > -210
+y = -1
+
+[State 1327, PATTERN]
+type = VelSet
+trigger1 = time > 100 && time < 300 && pos X < 140
+x = 2
+
+[State 1326, 3]
+type = PlaySnd
+triggerall = Timemod = 5,0
+trigger1 = time > 100 && time < 300 && pos X < 140
+value = 6,7
+
+[State 1327, 2]
+type = Projectile
+triggerall = Timemod = 5,0
+trigger1 = time > 100 && time < 300 && pos X < 140
+projid = 1060
+projanim = 1060
+projremanim = -1
+offset = 0, -86
+velocity = 0, 6
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,50
+numhits = 0
+
+[State 1327, 3]
+type = VelSet
+trigger1 = time > 300
+x = -.5
+y = 1
+
+[State 1327, 4]
+type = changestate
+trigger1 = time > 300 && pos Y >= -80
+value = 1325
+
+[Statedef 1328]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 1363
+
+[State 1328, 2]
+type = changestate
+trigger1 = var(35) = 1
+value = 1385
+
+[State 1328, PATTERN]
+type = VarAdd
+trigger1 = fvar(28) < 4
+fv = 28
+value = .05
+
+[State 1328, PATTERN]
+type = PosAdd
+trigger1 = 1
+y = fvar(28)
+
+[State 1328, PATTERN]
+type = changestate
+trigger1 = pos Y > 20
+value = 1329
+
+[State 1328, SPECIAL_ATTACK]
+type = VelSet
+trigger1 = pos y > 0
+y = 0
+
+[State 1328, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+; UP
+[Statedef 1329]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+
+[State 1329, PATTERN]
+type = VarAdd
+trigger1 = fvar(28) >= 0
+fv = 28
+value = -.04
+
+[State 1329, PATTERN]
+type = PosAdd
+trigger1 = 1
+y = -fvar(28)
+
+[State 1329, PATTERN]
+type = VarAdd
+trigger1 = fvar(28) <= .1 || pos y <= -70
+fv = 28
+value = 0
+
+[State 1329, PATTERN]
+type = changestate
+trigger1 = fvar(28) <= .1 || pos y <= -70
+value = 1325
+
+[State 1329, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[Statedef 1335]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 340
+
+[State 1335, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 1335, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1335, 2]
+type = PosSet
+trigger1 = time = 0 && parent, var(28) = 2
+x = -130 + ((random<500)*260)
+y = 60
+
+[State 1335, 2]
+type = PosAdd
+trigger1 = time = 0 && parent, var(28) = 2 && random < 500 && pos X < 0
+x = 30
+
+[State 1335, 2]
+type = PosAdd
+trigger1 = time = 0 && parent, var(28) = 2 && random < 500 && pos X > 0
+x = -30
+
+[State 1335, 2]
+type = PosSet
+trigger1 = time = 0 && parent, var(28) != 2
+x = 0 + ((random<500)*60) - ((random<500)*60) + ((random<500)*60) - ((random<500)*60)
+y = 60
+
+[State 1335, 0]
+type = Explod
+trigger1 = Time = 0
+anim = 342
+pos = 0,-40
+postype = p1
+ownpal = 1
+ontop = 1
+removetime = 60
+
+[State 1335, 3]
+type = VelSet
+trigger1 = time > 80 && time <= 110
+y = -3
+
+[State 1335, 4]
+type = VelAdd
+trigger1 = time > 110 && pos X > 0
+x = 1
+y = - .1
+
+[State 1335, 4]
+type = VelAdd
+trigger1 = time > 110 && pos X <= 0
+x = -1
+y = - .1
+
+[State 1335, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 25
+value = 6,5
+
+[State 1335, 6]
+type = AngleDraw
+trigger1 = time > 110
+
+[State 1335, 7]
+type = AngleAdd
+trigger1 = time > 110 && pos X > 0
+value = -.7
+
+[State 1335, 7]
+type = AngleAdd
+trigger1 = time > 110 && pos X < 0
+value = .7
+
+[State 1335, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 80
+trigger2 = time = 90
+trigger3 = time = 100
+trigger4 = time = 110
+value = 6,1
+
+[State 1335, 8]
+type = Projectile
+triggerall = p2stateno < 10000
+trigger1 = time = 80
+trigger2 = time = 90
+trigger3 = time = 100
+trigger4 = time = 110
+projid = 200
+projanim = 341
+projremanim = -1
+offset = 0, -10
+velocity = 0, -10
+remvelocity = 0, 0
+accel = 0, 0
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 1335, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+;---------------------------------------------------------------------------
+[Statedef 1340]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 310
+
+[State 1340, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 199
+time = -1
+
+[State 1340, 2]
+type = HitDef
+trigger1 = p2stateno != 198
+attr = S, NA
+animtype  = Heavy
+damage    = 0
+getpower = 0
+givepower = 0
+guardflag = 
+hitflag = MAF
+priority = 7, HIT
+pausetime = 0,0
+sparkno = -1
+sparkxy = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+numhits = 0
+
+[State 1340, 3]
+type = PosSet
+trigger1 = time = 0 && random < 50
+x = -150
+
+[State 1340, 3]
+type = VelSet
+trigger1 = time = 0
+y = 0 + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2) + ((random<500)*.2)
+
+[State 1340, 3]
+type = VelAdd
+trigger1 = vel Y < 8
+y = .1
+
+[State 1340, 5]
+type = PlaySnd
+triggerall = p2stateno < 10000
+trigger1 = time = 30
+value = 6,5
+
+[State 1340, 9]
+type = DestroySelf
+trigger1 = Time = 200
+
+; MECH_HEAD
+[Statedef 1370]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+velset = 0, 0
+anim = 1364
+sprpriority = 50
+
+[State 1370, BLITZ!#1]
+type = VarRandom
+trigger1 = 1
+v = 1
+range = 100,255
+
+[State 1370, BLITZ!#2]
+type = VarRandom
+trigger1 = 1
+v = 2
+range = 100,255
+
+[State 1370, BLITZ!#3]
+type = VarRandom
+trigger1 = 1
+v = 3
+range = 100,255
+
+[State 1370, BLITZ!#4]
+type = VarRandom
+trigger1 = 1
+v = 4
+range = 1,30
+
+[State 1370, BLITZ!#5]
+type = VarRandom
+trigger1 = 1
+v = 5
+range = 2,16
+
+[State 1370, BLITZ!#6]
+type = BGPalFX
+trigger1 = random < 30
+add = var(1),var(2),var(3)
+sinadd = var(1),var(2),var(3),var(4)
+time = var(5)
+
+[State 1370, 1]
+type = nothitby
+trigger1 = var(8) < 2500
+value = SCA
+time = 1
+
+[State 1370, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 1375
+time = -1
+
+[State 1370]
+type = VarAdd
+trigger1 = var(8) < 2500
+v = 8
+value = 1
+
+[State 1370, PATTERN]
+type = PosAdd
+trigger1 = var(8) < 2500
+y = .1
+
+[State 1370, PATTERN]
+type = VarSet
+trigger1 = pos X > 130 && var(8) >= 2500
+v = 25
+value = 1
+
+[State 1370, PATTERN]
+type = VarSet
+trigger1 = pos X < -130 && var(8) >= 2500
+v = 25
+value = 0
+
+[State 1370, PATTERN]
+type = VelSet
+trigger1 = var(25) = 0 && var(8) >= 2500
+x = 4
+
+[State 1370, PATTERN]
+type = VelSet
+trigger1 = var(25) = 1 && var(8) >= 2500
+x = -4
+
+[State 1370, SPECIAL_ATTACK]
+type = VarAdd
+trigger1 = pos Y > -100 && var(8) >= 2500
+v = 16
+value = 1
+
+[State 1370, SPECIAL_ATTACK]
+type = VarSet
+trigger1 = var(16) > 500 && var(8) >= 2500
+v = 16
+value = 0
+
+[State 1370, SHOWSCORE]
+type = DisplayToClipboard
+trigger1 = 1
+text="HEAD: %d"
+params = var(26)
+ignorehitpause = 1
+
+[State 1370, 9]
+type = DestroySelf
+trigger1 = p2stateno >= 10000 && p2stateno < 14000
+
+; Boss_Hit
+[Statedef 1375]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+sprpriority = 50
+
+[State 1375, BOSSHITFX]
+type = PlaySnd
+trigger1 = Time = 0 && random < 50
+value = 6,10
+
+[State 1375, 1]
+type = PalFX
+trigger1 = Time = 0
+add = var(26)/2 + 25,0,0
+time = 1
+
+[State 1375, 2]
+type = VarAdd
+trigger1 = Time = 0
+v = 26
+value = 1
+
+[State 1375, 2]
+type = changestate
+trigger1 = Time = 0 && var(26) > (499-((parent,var(17)*100)))
+value = 1380
+
+[State 1375, 2]
+type = changestate
+trigger1 = Time = 0
+value = 1370
+
+; Boss_Done!
+[Statedef 1380]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1365
+
+[State 1380]
+type = ParentVarSet
+trigger1 = Time = 0
+v = 35
+value = 1
+
+[State 1380]
+type = stopsnd
+trigger1 = Time = 0
+channel = 7
+
+[State 1380, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 1380, 7]
+type = AngleAdd
+trigger1 = time > 200
+value = 1
+
+[State 1380, 6]
+type = PosAdd
+trigger1 = time > 200
+x = .5
+y = .5
+
+[State 1380, 0]
+type = PlaySnd
+trigger1 = TimeMod = 8,0
+value = 6,2 + ((random<500)*1) + ((random<500)*1)
+
+[State 1380, 0]
+type = Explod
+trigger1 = TimeMod = 12,0
+anim = 199
+pos = 0,0
+postype = p1
+sprpriority = 20
+ownpal = 1
+scale = 1,1
+random = 60, 60
+
+[State 1380, 0]
+type = Explod
+trigger1 = Time = 250
+anim = 10000
+pos = 160,100
+postype = left
+ownpal = 1
+ontop = 1
+removetime = 160
+
+[State 1380, 2]
+type = changestate
+trigger1 = Time = 850 || pos Y > 300 || pos X > 250 || pos X < -250
+value = 199
+
+; Boss_Away!
+[Statedef 1385]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1360
+velset = 10,-10
+
+[State 1385, 2]
+type = ParentVarSet
+trigger1 = Time = 0
+v = 35
+value = 1
+
+[State 1385]
+type = stopsnd
+trigger1 = Time = 0
+channel = 7
+
+[State 1385, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 1385, 7]
+type = AngleAdd
+trigger1 = 1
+value = 32
+
+[State 1385, 2]
+type = destroyself
+trigger1 = Time = 50
+
+;---------------------------------------------------------------------------
+; Boss_Done!
+[Statedef 9000]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1050 + ((parent, var(29)*100))
+
+[State 9000]
+type = stopsnd
+trigger1 = Time = 0
+channel = 7
+
+[State 9000, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 9000, 7]
+type = AngleAdd
+trigger1 = time > 200
+value = 1
+
+[State 9000, 6]
+type = PosAdd
+trigger1 = time > 200
+x = .5
+y = .5
+
+[State 9000, 0]
+type = PlaySnd
+trigger1 = TimeMod = 8,0
+value = 6,2 + ((random<500)*1) + ((random<500)*1)
+
+[State 9000, 0]
+type = Explod
+trigger1 = TimeMod = 12,0
+anim = 199
+pos = 0,0
+postype = p1
+sprpriority = 20
+ownpal = 1
+scale = 1,1
+random = 60, 60
+
+[State 9000, 0]
+type = ParentVarAdd
+trigger1 = time = 0
+v = 29
+value = 1
+
+[State 9000, 0]
+type = Explod
+trigger1 = Time = 250
+anim = 10000
+pos = 160,100
+postype = left
+ownpal = 1
+ontop = 1
+removetime = 160
+
+[State 9000, ALERT]
+type = PlaySnd
+triggerall = parent, var(29) = 2 && numexplod(610) = 0
+trigger1 = Time = 850 || pos Y > 300 || pos X > 250 || pos X < -250
+value = 6,11
+
+[State 9000, ASTEROIDS_ALERT]
+type = Explod
+triggerall = parent, var(29) = 2
+trigger1 = Time = 850 || pos Y > 300 || pos X > 250 || pos X < -250
+anim = 610
+ID = 610
+pos = 320,60
+postype = left
+ontop = 1
+ownpal = 1
+
+[State 9000, 2]
+type = changestate
+trigger1 = Time = 850 || pos Y > 300 || pos X > 250 || pos X < -250
+value = 199
+
+;---------------------------------------------------------------------------
+; Boss_Away!
+[Statedef 9500]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 1050 + ((parent, var(29)*100))
+velset = 10,-10
+
+[State 9500]
+type = stopsnd
+trigger1 = Time = 0
+channel = 7
+
+[State 9500, 6]
+type = AngleDraw
+trigger1 = 1
+
+[State 9500, 7]
+type = AngleAdd
+trigger1 = 1
+value = 32
+
+[State 9500, 2]
+type = destroyself
+trigger1 = Time = 50
+
+;---------------------------------------------------------------------------
+; ENDING
+[Statedef 10000]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 0
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time = 10
+add = -32,-32,-32
+time = 10
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time = 20
+add = -64,-64,-64
+time = 10
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time = 30
+add = -96,-96,-96
+time = 10
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time = 40
+add = -128,-128,-128
+time = 10
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time = 50
+add = -160,-160,-160
+time = 5
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time = 55
+add = -192,-192,-192
+time = 5
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time = 60
+add = -222,-222,-222
+time = 5
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time = 65
+add = -256,-256,-256
+time = 35
+
+[State 10000, 0]
+type = AssertSpecial
+trigger1 = Time >= 100 && Time < 3200
+flag = nobg
+
+[State 10000, 0]
+type = BGPalFX
+trigger1 = Time >= 3200
+color = 0
+time = 2
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 300
+anim = 11047
+ID = 11000
+pos = 157,210
+postype = left
+ownpal = 1
+ontop = 1
+velocity = 0, -.1
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 300
+anim = 11000
+ID = 11000
+pos = 0,0
+postype = left
+ownpal = 1
+ontop = 1
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 300
+anim = 11043
+ID = 11040
+pos = 70,200
+postype = left
+ownpal = 1
+velocity = -.01,-.03
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 300
+anim = 11044
+ID = 11040
+pos = 70,200
+postype = left
+ownpal = 1
+velocity = -.01,-.03
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 300
+anim = 11041
+ID = 11040
+pos = 155,220
+postype = left
+ownpal = 1
+velocity = -.02,-.05
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 300
+anim = 11042
+ID = 11040
+pos = 155,220
+postype = left
+ownpal = 1
+velocity = -.02,-.05
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 300
+anim = 11040
+ID = 11040
+pos = 250,25
+postype = left
+ownpal = 1
+velocity = -.1,0
+
+[State 10000, 0]
+type = RemoveExplod
+trigger1 = Time = 3200
+trigger2 = Time = 6000
+ID = 11040
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 3200
+anim = 11046
+ID = 11040
+pos = 120,100
+postype = left
+ownpal = 1
+velocity = -.1,0
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 3200
+anim = 11045
+ID = 11040
+pos = 40,30
+postype = left
+ownpal = 1
+velocity = .08,0
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 5000
+anim = 11010
+pos = 160,115
+postype = left
+ownpal = 1
+removetime = 7200
+
+[State 10000, 0]
+type = Explod
+trigger1 = Time = 10520
+anim = 11020
+pos = 160,280
+postype = left
+ownpal = 1
+velocity = 0, -1
+removetime = 400
+
+[State 10000, 2]
+type = helper
+trigger1 = numhelper(11000) < 3 && random < 15 && time > 1000 && time < 11250
+trigger2 = numhelper(11000) < 10 && random < 50 && time > 11250
+ID = 11000
+pos = 160,250 + ((random<500)*20) + ((random<500)*20) + ((random<500)*20)
+postype = left
+stateno = 11000
+helpertype = normal
+name = "FireWorks"
+ownpal = 1
+sprpriority = -10
+keyctrl = 0
+
+[State 10000, 2]
+type = VarSet
+trigger1 = Time = 0
+v = 29
+value = 0
+
+[State 10000, 0]
+type = RemoveExplod
+trigger1 = Time = 13099
+ID = 11000
+
+[State 10000, 2]
+type = changestate
+trigger1 = Time = 13100
+value = 0
+ctrl = 0
+
+;---------------------------------------------------------------------------
+; FIREWORKS
+[Statedef 11000]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 0
+
+[State 11000]
+type = varRandom
+trigger1 = Time = 0
+v = 25
+range = 0,1
+
+[State 11000, PATTERN]
+type = VarSet
+trigger1 = Time = 0
+fv = 28
+value = -4
+
+[State 11000]
+type = changestate
+trigger1 = Time = 0
+value = 11010
+
+;---------------------------------------------------------------------------
+; FIREWORKS_FLY
+[Statedef 11010]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 210
+
+[State 11010, PATTERN]
+type = VelSet
+trigger1 = var(25) = 0
+x = .4
+
+[State 11010, PATTERN]
+type = VelSet
+trigger1 = var(25) = 1
+x = -.4
+
+[State 11010, PATTERN]
+type = VarAdd
+trigger1 = 1
+fv = 28
+value = .02
+
+[State 11010, PATTERN]
+type = PosAdd
+trigger1 = 1
+y = fvar(28)
+
+[State 11010]
+type = ChangeState
+trigger1 = fvar(28) > 1
+value = 11020
+ctrl = 0
+
+;---------------------------------------------------------------------------
+; FIREWORKS_EXPLODE
+[Statedef 11020]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 0
+
+[State 11020, 0]
+type = PlaySnd
+trigger1 = Time = 1
+value = 6,2 + ((random<500)*1) + ((random<500)*1)
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = 0, -4
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = -1, -4
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = 1.4, -3.5
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = -2, -4.2
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = 2.2, -3.9
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = .3, -2
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = -.8, -2.5
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = 1.1, -1.5
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = -1.8, -1.2
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020, 8]
+type = Projectile
+trigger1 = time = 0
+projid = 210
+projanim = 11030
+projremanim = -1
+offset = 0, 0
+velocity = 1.6, -1
+accel = 0, .1
+attr = S, SP
+damage    = 0
+getpower  = 0
+givepower = 0
+hitflag = MAF
+guardflag = 
+pausetime = 0,0
+guard.pausetime = 0,0
+sparkno = -1
+guard.sparkno = -1
+hitsound   = -1
+guardsound = -1
+projheightbound = -250,250
+numhits = 0
+
+[State 11020]
+type = DestroySelf
+trigger1 = Time = 1
+
+;---------------------------------------------------------------------------
+; SCORE_CHECK
+[Statedef 12000]
+type    = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 12000
+
+[State 12000, 2]
+type = changestate
+trigger1 = numhelper != 0 && p2stateno != 9000
+value = 0
+ctrl = 0
+
+[State 12000, 1]
+type = HitOverride
+trigger1 = 1
+slot = 0
+attr = SCA, AA, AT, AP
+stateno = 12000
+time = -1
+
+[State 12000, 2]
+type = changestate
+trigger1 = Time = 50
+value = 0
+ctrl = 0
+
+;-------------------------------------------------------------------------------------------------
+[statedef -2]
+
+[State -2]
+type = PosSet
+trigger1 = 1
+x = 200
+y = -180
+
+[State -2]
+type = VarAdd
+trigger1 = 1
+v = 12
+value = 1
+
+[State -2]
+type = VarAdd
+trigger1 = var(12) = 100 && var(10) < (51 - ((var(17)=1)*40)) && p2stateno < 9000
+v = 10
+value = 1
+
+[State -2]
+type = VarAdd
+trigger1 = var(12) = 100 && var(11) < 51 && p2stateno < 9000
+v = 11
+value = 1
+
+[State -2]
+type = VarAdd
+trigger1 = var(12) = 100 && var(19) < 60 && numhelper(500) = 0 && p2stateno < 9000
+v = 19
+value = 1
+
+[State -2]
+type = VarSet
+trigger1 = var(12) = 101 || p2stateno >= 11000
+v = 12
+value = 0
+
+[State -2]
+type = VarSet
+trigger1 = p2stateno = 199 || var(11) >= var(31) || p2stateno >= 11000
+v = 11
+value = 0
+
+[State -2]
+type = VarAdd
+trigger1 = var(11) = 0 && var(12) = 0 && var(31) < 20 && numhelper(500) = 0 && p2stateno < 9000
+v = 31
+value = 1
+
+[State -2]
+type = VarSet
+trigger1 = p2stateno >= 11000
+v = 19
+value = 0
+
+[State -2]
+type = changestate
+trigger1 = stateno != 10000 && var(29) > 3
+value = 10000
+
+[State -2]
+type = VarSet
+trigger1 = p2stateno >= 11000 || var(29) > 3
+v = 29
+value = 0
+
+[State -2]
+type = VarSet
+trigger1 = p2stateno = 199 || p2stateno >= 11000
+v = 10
+value = 0 + (var(29)*(12-((var(17)=1)*6)))
+
+[State -2]
+type = VarSet
+trigger1 = p2stateno >= 11000
+v = 31
+value = 10 - ((var(17)=1)*10)
+
+[State -2]
+type = VarRandom
+trigger1 = 1
+v = 7
+range = 0,6 + var(29)
+
+[State -2] ;Level 3 Asteroid Field!
+type = VarSet
+trigger1 = var(29) = 2 && var(19) < 40
+v = 7
+value = 6
+
+[State -2]
+type = helper
+triggerall = random < (var(11)*6)
+trigger1 = numhelper < 7 && numhelper(500) = 0
+ID = 200
+pos = 370 - ((var(7)=1)*350) - ((var(7)=2)*80) - ((var(7)=3)*160) - ((var(7)=5)*350) - ((var(7)=6)*440) ,0 - ((var(7)=2)*40) - ((var(7)=3)*40) + ((var(7)=4)*190) + ((var(7)=5)*190) + ((var(7)=5)*190)
+postype = p1
+stateno = 200 + (var(7)*10)
+helpertype = normal
+name = "Enemy"
+ownpal = 1
+keyctrl = 0
+
+[State -2]
+type = helper
+triggerall = var(19) = 60
+trigger1 = p2stateno < 10000 && numhelper(500) = 0
+ID = 500
+pos = 200,-100
+postype = p1
+stateno = 1000 + (var(29)*100)
+helpertype = normal
+name = "Boss"
+ownpal = 1
+keyctrl = 0
+
+[State -2]
+type = helper
+triggerall = var(29) = 2 && var(19) < 40
+trigger1 = p2stateno < 10000 && numhelper(330) = 0
+ID = 330
+pos = -40,-40
+postype = p1
+stateno = 330
+helpertype = normal
+name = "DamagedGoods"
+ownpal = 1
+keyctrl = 0
+
+[State -2]
+type = helper
+triggerall = var(19) = 35 - ((var(29)=1)*30) - ((var(29)=2)*15) - ((var(29)=3)*30) || var(19) = -60 + ((var(29)=1)*95) + ((var(29)=2)*80) + ((var(29)=3)*70) || var(19) = -60 + ((var(29)=1)*0) + ((var(29)=2)*90) + ((var(29)=3)*90)
+trigger1 = p2stateno < 10000 && numhelper(300) = 0
+ID = 300
+pos = -40,70
+postype = p1
+stateno = 300
+helpertype = normal
+name = "Castle"
+ownpal = 1
+keyctrl = 0
+
+[State -2]
+type = helper
+triggerall = var(19) = 25 || var(19) = 45
+trigger1 = p2stateno < 10000 && numhelper(400) = 0
+ID = 400
+pos = -40,70
+postype = p1
+stateno = 310
+helpertype = normal
+name = "Kameyama"
+ownpal = 1
+keyctrl = 0
+
+[State -2]
+type = AssertSpecial
+trigger1 = numhelper(500) != 0
+flag = nomusic
+
+[State -2]
+type = changestate
+triggerall = numhelper = 0 || p2stateno = 9000
+trigger1 = (stateno != 12000 && stateno != 10000) || p2stateno = 9000
+value = 12000
+ctrl = 0
+
+[State -2, SHOWSCORE]
+type = DisplayToClipboard
+trigger1 = 1
+text="APPEAR: %d  SHOOT: %d  WAVE: %d                     BOSS: %d  MODE: %d"
+params = var(11), var(10), var(31), var(19), var(17)
+ignorehitpause = 1
