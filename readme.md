@@ -94,15 +94,15 @@ raise your shot-level up to level 5!
 
 The score you get for one hit depends on the shot-level:
 
-Level#1  =  75 pts.
-Level#2  = 150 pts.
-Level#3  = 225 pts.
-Level#4  = 300 pts.
-Level#5  = 375 pts.
-
-Laser    =  75 pts.
-Shield   =  75 pts.
-Beam     = 150 pts.
+Level#1  =  75 pts.   
+Level#2  = 150 pts.   
+Level#3  = 225 pts.   
+Level#4  = 300 pts.   
+Level#5  = 375 pts.   
+   
+Laser    =  75 pts.   
+Shield   =  75 pts.   
+Beam     = 150 pts.   
 
 
 ## CAPSULE SYSTEM
@@ -116,30 +116,30 @@ HINT: By using your Beamshot, you can transform enemies into capsules!
 
 Capsule-Combinations:
 
-123 = Bigger Projectile
-231 = Bigger Projectile
-312 = Bigger Projectile
-321 = Bigger Projectile
-132 = Bigger Projectile
-213 = Bigger Projectile
-
-111 = Energy Up
-121 = Mines
-131 = Full Energy
-
-212 = Shuriken
-222 = Satelite
-232 = Shield
-
-313 = Torpedos
-323 = Laser
-333 = Backup
-
-122 = Smart Bomb
-112 = Invincible
-
-311 = Speed Up
-133 = Speed Down
+123 = Bigger Projectile   
+231 = Bigger Projectile   
+312 = Bigger Projectile   
+321 = Bigger Projectile   
+132 = Bigger Projectile   
+213 = Bigger Projectile   
+   
+111 = Energy Up   
+121 = Mines   
+131 = Full Energy   
+   
+212 = Shuriken   
+222 = Satelite   
+232 = Shield   
+   
+313 = Torpedos   
+323 = Laser   
+333 = Backup   
+   
+122 = Smart Bomb   
+112 = Invincible   
+   
+311 = Speed Up   
+133 = Speed Down   
 
 
 ## CHEATS?
@@ -150,16 +150,16 @@ all of the cheats :)
 
 ## FREQUENTLY ASKED QUESTIONS
 
-Q: What?
+Q: What?   
 A: J'DAR-II is a Top-Down Shooter, created using Elecbyte's MUGEN-Engine.
 
-Q: Why?
+Q: Why?   
 A: because I want to proof that MUGEN truely is awesome.
 
-Q: When?
+Q: When?   
 A: I started this shooter on June, 7th. 2001
 
-Q: erm...?
+Q: erm...?   
 A: No, you can't host it on your page, no thanx...
 
 
