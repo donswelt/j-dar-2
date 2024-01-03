@@ -2,7 +2,7 @@
 * J'DAR-II V2.0 *
 *****************
 
-A game by KGenjuro, RetroArts, www.daddelkingz.de
+A game by Torsten Hartmann, aka Donswelt, KGenjuro, RetroArts, https://donswelt.de
 
 powered by M.U.G.E.N, www.elecbyte.com
 
