@@ -1,6 +1,4 @@
-*****************
-* J'DAR-II V2.0 *
-*****************
+# J'DAR-II V2.0
 
 A game by Torsten Hartmann, aka Donswelt, KGenjuro, RetroArts, https://donswelt.de
 
@@ -36,9 +34,7 @@ logo.mp3
 
 Copy your mugen.exe file into the main directory.
 
-***********
-* UPDATES *
-***********
+## UPDATES
 
 ( updates are marked with *NEW!* )
 
@@ -53,9 +49,7 @@ Copy your mugen.exe file into the main directory.
 - fixed a few bugs
 
 
-******************
-* HOW TO INSTALL *
-******************
+## HOW TO INSTALL
 
 1. Download the latest MUGEN from www.elecbyte.com
 
@@ -66,9 +60,7 @@ Copy your mugen.exe file into the main directory.
 4. Run J'Dar'II by double clicking on the JDarII.exe
    
 
-************************
-* BUTTON CONFIGURATION *
-************************
+## BUTTON CONFIGURATION
 
 X         =  Shoot (hold X = charge beam)
 left  + Y =  Sommersault to the left
@@ -77,9 +69,7 @@ A         =  Smartbomb
 B         =  Satelite-Dash (only if your ship ownz a satelite)
 
 
-***********************************************************************
-* I DONT HAVE A CLUE ABOUT MUGEN AND I JUST WANT TO CHECK THE SHOOTER *
-***********************************************************************
+## I DONT HAVE A CLUE ABOUT MUGEN AND I JUST WANT TO CHECK THE SHOOTER
 
 okay, go to MUGEN\DATA\ and open mugen.cfg with your default text-editor.
 There you can change video and sound settings as well as many other things.
@@ -94,16 +84,12 @@ I recommend 'FAST1' as the default-speed setting!
 After that, exit mugen.exe with the escape-button and start J'Dar'II via jdarii.exe
 
 
-****************
-* HOW TO PLAY? *
-****************
+## HOW TO PLAY?
 
 Shoot everything in sight and try to get past all four bosses ^_^
 
 
-*****************
-* SCORING GUIDE *
-*****************
+## SCORING GUIDE
 
 You start with a level 1 shot. Within time the shot-meter will rise
 automaticly until it reaches level 3. Combine special capsules to
@@ -122,9 +108,7 @@ Shield   =  75 pts.
 Beam     = 150 pts.
 
 
-*******************
-* CAPSULE SYSTEM: *
-*******************
+## CAPSULE SYSTEM
 
 J-Dar-II has a unique powerup system: the capsule system.
 You can collect various capsules during the game, simply
@@ -161,17 +145,13 @@ Capsule-Combinations:
 133 = Speed Down
 
 
-***********
-* CHEATS? *
-***********
+## CHEATS?
 
 Don't try to find anything in there... J2 know has difficulty-settings, so I removed
 all of the cheats :)
 
 
-*******************************
-* FREQUENTLY ASKED QUESTIONS: *
-*******************************
+## FREQUENTLY ASKED QUESTIONS
 
 Q: What?
 A: J'DAR-II is a Top-Down Shooter, created using Elecbyte's MUGEN-Engine.
@@ -186,9 +166,7 @@ Q: erm...?
 A: No, you can't host it on your page, no thanx...
 
 
-**********
-* THANKS *
-**********
+## THANKS
 
 KernTeam (for the soundtrack)
 K3nShiN (for the front-end)
